@@ -18,6 +18,9 @@ find_package(visualization_msgs REQUIRED)
 set(SRC
         src/example.cpp
         src/nodes/io_nodes.cpp
+        src/nodes/motor_node.cpp
+        src/nodes/encoder_node.cpp
+        src/algorithms/kinematics_algorithms.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)
