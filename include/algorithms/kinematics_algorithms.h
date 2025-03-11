@@ -56,8 +56,7 @@ namespace algorithms {
         static WheelSpeed Inverse_kinematics (RobotSpeed in);
         static RobotSpeed Forward_kinematics (WheelSpeed in);
         WheelSpeed wheelSpeed_fromEncoders (Encoders in, double T);
-        Pose update_pose(Pose current_pose, RobotSpeed robot_speed, double T);
-
+        static Pose update_pose(const Pose& current_pose, Encoders in);
     private:
         // Variable to store the last received button press value
         // Subscriber for button press messages

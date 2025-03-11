@@ -56,26 +56,19 @@ namespace algorithms {
         return out;
     }
 
-    WheelSpeed KinematicsAlgorithms::wheelSpeed_fromEncoders (const Encoders in, double T)
-    {
-        WheelSpeed out{};
-        out.r = (2*M_PI*in.l)/(576 * T);
-        out.l = (2*M_PI*in.r)/(576 * T);
+    Pose KinematicsAlgorithms::update_pose(const Pose& current_pose, const Encoders in) {
+
+        Pose out{};
+        auto delta_dl = R * ((2*M_PI*in.l)/576);
+        auto delta_dr = R * ((2*M_PI*in.r)/576);
+
+        auto  delta_d = (delta_dl + delta_dr)/2;
+        auto delta_fi = (delta_dr - delta_dl)/L;
+
+        out.x = current_pose.x + delta_d * std::cos(current_pose.theta + delta_fi/2);
+        out.y = current_pose.y + delta_d * std::sin(current_pose.theta + delta_fi/2);
+        out.theta = current_pose.theta + delta_fi;
         return out;
-    }
-
-    Pose update_pose(const Pose current_pose, const RobotSpeed robot_speed, double T) {
-
-        // Update the robot's orientation (theta)
-        double new_theta = current_pose.theta + robot_speed.w * T;
-
-        // Update the robot's position (x, y)
-        double new_x = current_pose.x + robot_speed.v * cos(current_pose.theta) * T;
-        double new_y = current_pose.y + robot_speed.v * sin(current_pose.theta) * T;
-
-        // Return the new pose
-        Pose new_pose = {new_x, new_y, new_theta};
-        return new_pose;
     }
 
 

@@ -52,26 +52,26 @@ int main(int argc, char* argv[])
 
     while (rclcpp::ok())
     {
+        // Toceni s motory
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
+        // Ziskani diference z enkoderu
         encoders.l = encoder_class->get_left_value() - tmp_encoders.l;
         encoders.r = encoder_class->get_right_value() -tmp_encoders.r;
         tmp_encoders.l = encoder_class->get_left_value();
         tmp_encoders.r = encoder_class->get_right_value();
-        std::cout << encoders.l << ", " << encoders.r << std::endl;
 
+        // Vypocet nove pozy
+        pose = algorithms::KinematicsAlgorithms::update_pose(pose, encoders);
+        std::cout << pose.x << " m, " << pose.y << " m, " << pose.theta << " rad" << std::endl;
 
+        // Nahodne veci Filipa Slimy
         Coordinates tmp_coordinates = algorithms::KinematicsAlgorithms::Forward_odometry(encoders);
-        //Encoders encoders_megatmp{576, 3*576};
-        //Coordinates tmp_coordinates_megatmp= algorithms::KinematicsAlgorithms::Forward_odometry(encoders_megatmp);
-
-
         coordinates.x = coordinates.x + tmp_coordinates.x;
         coordinates.y = coordinates.y + tmp_coordinates.y;
         std::cout << tmp_coordinates.x << ", " << tmp_coordinates.y << std::endl;
-        std::cout << coordinates.x << ", " << coordinates.y << std::endl;
+        //std::cout << coordinates.x << ", " << coordinates.y << std::endl;
 
-        pose = algorithms::KinematicsAlgorithms::update_pose(pose, robot_speed, nodes::EncoderNode::T);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
