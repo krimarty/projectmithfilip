@@ -22,8 +22,21 @@ namespace nodes{
     void MotorNode::publish_motorSpeed(const double l, const double r) { //Je potreba udelat prepocet rychlosti na cislo do enkoderu
         auto msg = std_msgs::msg::UInt8MultiArray();
         msg.data.resize(2);
-        msg.data[0] = l;
-        msg.data[1] = r;
+
+        if (l == 0)
+            msg.data[0] = 127;
+        else if (l > 0)
+            msg.data[0] = 127 + l * 10;
+        else
+            msg.data[0] = 127 - l * 10;
+
+        if (r == 0)
+            msg.data[1] = 127;
+        else if (r > 0)
+            msg.data[1] = 127 + r * 10;
+        else
+            msg.data[1] = 127 - r * 10;
+
         motorSpeed_publisher_->publish(msg);
         //RCLCPP_INFO(get_logger(), "Published: %d", msg.data[0]);
     }

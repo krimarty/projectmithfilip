@@ -6,6 +6,12 @@
 #define ESTIMATION_ALGORITHM_H
 #include <utility>
 
+struct Pose {
+    double x;
+    double y;
+    double theta;
+};
+
 struct RobotSpeed{
     double v; //linear
     double w; //angluar
@@ -24,6 +30,7 @@ struct Encoders{
 struct Coordinates{
     double x;
     double y;
+
 };
 
 /*
@@ -48,6 +55,8 @@ namespace algorithms {
         static Encoders Inverse_odometry (Coordinates in);
         static WheelSpeed Inverse_kinematics (RobotSpeed in);
         static RobotSpeed Forward_kinematics (WheelSpeed in);
+        WheelSpeed wheelSpeed_fromEncoders (Encoders in, double T);
+        Pose update_pose(Pose current_pose, RobotSpeed robot_speed, double T);
 
     private:
         // Variable to store the last received button press value

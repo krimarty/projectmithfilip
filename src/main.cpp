@@ -35,10 +35,18 @@ int main(int argc, char* argv[])
     // Run the executor (handles callbacks for both nodes)
     auto executor_thread = std::thread([&executor]() { executor->spin(); });
 
-    Coordinates coordinates{};
+    Coordinates coordinates{0 ,0};
     WheelSpeed wheel_speed{};
-    RobotSpeed robot_speed{};
+    RobotSpeed robot_speed{10, 0.5};
     Encoders encoders{};
+    Encoders tmp_encoders{};
+    Pose pose{};
+
+
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    tmp_encoders.l = encoder_class->get_left_value();
+    tmp_encoders.r = encoder_class->get_right_value();
 
     wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
 
@@ -46,14 +54,24 @@ int main(int argc, char* argv[])
     {
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
-        encoders.l = encoder_class->get_left_value();
-        encoders.r = encoder_class->get_right_value();
+        encoders.l = encoder_class->get_left_value() - tmp_encoders.l;
+        encoders.r = encoder_class->get_right_value() -tmp_encoders.r;
+        tmp_encoders.l = encoder_class->get_left_value();
+        tmp_encoders.r = encoder_class->get_right_value();
+        std::cout << encoders.l << ", " << encoders.r << std::endl;
+
 
         Coordinates tmp_coordinates = algorithms::KinematicsAlgorithms::Forward_odometry(encoders);
+        //Encoders encoders_megatmp{576, 3*576};
+        //Coordinates tmp_coordinates_megatmp= algorithms::KinematicsAlgorithms::Forward_odometry(encoders_megatmp);
+
 
         coordinates.x = coordinates.x + tmp_coordinates.x;
         coordinates.y = coordinates.y + tmp_coordinates.y;
+        std::cout << tmp_coordinates.x << ", " << tmp_coordinates.y << std::endl;
         std::cout << coordinates.x << ", " << coordinates.y << std::endl;
+
+        pose = algorithms::KinematicsAlgorithms::update_pose(pose, robot_speed, nodes::EncoderNode::T);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

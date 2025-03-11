@@ -28,12 +28,16 @@ namespace nodes {
         //Function to retireve the last pressed button value
         //int get_button_pressed() const;
         //void publish_message(int option);
-
+        bool init = false;
+        std::chrono::duration<double> T;
 
     private:
         // Variable to store the last received button press value
         std::atomic<int> encoderValue0_ = 0;
         std::atomic<int> encoderValue1_ = 0;
+        std::chrono::time_point<std::chrono::system_clock> end;
+        std::chrono::time_point<std::chrono::system_clock> start;
+
 
         // Subscriber for button press messages
         rclcpp::Subscription<std_msgs::msg::UInt32MultiArray>::SharedPtr encoders_subscriber_;
@@ -46,8 +50,12 @@ namespace nodes {
         // Callback - preprocess received message
         void encoder_callback(const std_msgs::msg::UInt32MultiArray::SharedPtr msg)
         {
-            encoderValue0_ = msg->data[0]-encoderValue0_;
-            encoderValue1_ = msg->data[1]-encoderValue1_;
+            end = std::chrono::high_resolution_clock::now();
+            encoderValue0_ = msg->data[0];
+            encoderValue1_ = - msg->data[1];
+            T = end - start;
+            start = std::chrono::high_resolution_clock::now();
+            init = true;
             //std::cout << "encoderValue_: " << encoderValue0_ << ", " << encoderValue1_ << std::endl;
         }
     };
