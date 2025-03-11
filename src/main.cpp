@@ -4,6 +4,7 @@
 #include "nodes/motor_node.h"
 #include "nodes/encoder_node.h"
 #include "algorithms/kinematics_algorithms.h"
+#include "nodes/joystick_node.h"
 
 int main(int argc, char* argv[])
 {
@@ -18,6 +19,7 @@ int main(int argc, char* argv[])
 
     // Create instances of RosExampleClass using the existing nodes
     auto example_class1 = std::make_shared<nodes::IoNode>();
+    auto joystick_class = std::make_shared<nodes::JoystickNode>();
     //auto example_class2 = std::make_shared<RosExampleClass>(node2, "topic2", 2.0);
     auto motor_class = std::make_shared<nodes::MotorNode>();
     auto encoder_class = std::make_shared<nodes::EncoderNode>();
@@ -28,6 +30,7 @@ int main(int argc, char* argv[])
 
     // Add nodes to the executor
     executor->add_node(example_class1);
+    executor->add_node(joystick_class);
     executor->add_node(motor_class);
     executor->add_node(encoder_class);
     //executor->add_node(node2);
@@ -53,6 +56,9 @@ int main(int argc, char* argv[])
     while (rclcpp::ok())
     {
         // Toceni s motory
+        robot_speed.v = joystick_class->get_v_();
+        robot_speed.w = joystick_class->get_w_();
+        wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
         // Ziskani diference z enkoderu

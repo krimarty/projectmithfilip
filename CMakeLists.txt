@@ -21,6 +21,8 @@ set(SRC
         src/nodes/motor_node.cpp
         src/nodes/encoder_node.cpp
         src/algorithms/kinematics_algorithms.cpp
+        include/nodes/joystick_node.h
+        src/nodes/joystick_node.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)
