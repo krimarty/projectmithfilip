@@ -18,7 +18,7 @@ namespace nodes{
         if (dir_forward_ < 1)
             return -(dir_forward_ - 1)/6;
         else
-            return -(dir_backward_ - 1)/6;
+            return (dir_backward_ - 1)/6;
     }
 
 }

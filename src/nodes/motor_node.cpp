@@ -23,19 +23,8 @@ namespace nodes{
         auto msg = std_msgs::msg::UInt8MultiArray();
         msg.data.resize(2);
 
-        if (l == 0)
-            msg.data[0] = 127;
-        else if (l > 0)
-            msg.data[0] = 127 + l * 10;
-        else
-            msg.data[0] = 127 - l * 10;
-
-        if (r == 0)
-            msg.data[1] = 127;
-        else if (r > 0)
-            msg.data[1] = 127 + r * 10;
-        else
-            msg.data[1] = 127 - r * 10;
+        msg.data[0] = 127 + l * 10;
+        msg.data[1] = 127 + r * 10;
 
         motorSpeed_publisher_->publish(msg);
         //RCLCPP_INFO(get_logger(), "Published: %d", msg.data[0]);
