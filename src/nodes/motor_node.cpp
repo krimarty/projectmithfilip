@@ -19,7 +19,7 @@ namespace nodes{
      }
     */
 
-    void MotorNode::publish_message(int l, int r) {
+    void MotorNode::publish_motorSpeed(const double l, const double r) { //Je potreba udelat prepocet rychlosti na cislo do enkoderu
         auto msg = std_msgs::msg::UInt8MultiArray();
         msg.data.resize(2);
         msg.data[0] = l;

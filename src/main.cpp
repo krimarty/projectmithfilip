@@ -35,43 +35,25 @@ int main(int argc, char* argv[])
     // Run the executor (handles callbacks for both nodes)
     auto executor_thread = std::thread([&executor]() { executor->spin(); });
 
-    std::pair<float, float> total = std::make_pair(0, 0);
-    std::pair<float, float> myPair = std::make_pair(-3, 0.00);
-    std::pair<int, int> p = kinematics_object.Inverse_kinematics(myPair);
+    Coordinates coordinates{};
+    WheelSpeed wheel_speed{};
+    RobotSpeed robot_speed{};
+    Encoders encoders{};
+
+    wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
 
     while (rclcpp::ok())
     {
-        //std::cout << example_class1->get_button_pressed() << std::endl;
-        /*
-        switch (example_class1->get_button_pressed())
-        {
-            case 0:
-                example_class1->publish_message(0);
-                    break;
-            case 1:
-                example_class1->publish_message(4);
-                    break;
-            case 2:
-                example_class1->publish_message(8);
-                    break;
-            default:
-                break;
+        motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
-        }
-        */
+        encoders.l = encoder_class->get_left_value();
+        encoders.r = encoder_class->get_right_value();
 
+        Coordinates tmp_coordinates = algorithms::KinematicsAlgorithms::Forward_odometry(encoders);
 
-
-        motor_class->publish_message(p.first, p.second);
-
-        std::pair<int, int> encoders;
-        encoders = encoder_class->get_values();
-        std::pair<float, float> souradnice;
-        souradnice  = kinematics_object.Forward_odometry(encoders);
-
-        total.first = total.first + souradnice.first;
-        total.second = total.second + souradnice.second;
-        std::cout << total.first << ", " << total.second << std::endl;
+        coordinates.x = coordinates.x + tmp_coordinates.x;
+        coordinates.y = coordinates.y + tmp_coordinates.y;
+        std::cout << coordinates.x << ", " << coordinates.y << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

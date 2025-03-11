@@ -13,6 +13,7 @@
 #include <atomic>
 #include <utility>
 
+
 namespace nodes {
     class EncoderNode : public rclcpp::Node {
     public:
@@ -22,7 +23,8 @@ namespace nodes {
         ~EncoderNode() override = default;
 
 
-        std::pair<int, int> get_values();
+        int get_left_value();
+        int get_right_value();
         //Function to retireve the last pressed button value
         //int get_button_pressed() const;
         //void publish_message(int option);

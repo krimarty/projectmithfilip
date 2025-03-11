@@ -9,45 +9,48 @@
 
 namespace algorithms {
 
-    KinematicsAlgorithms::KinematicsAlgorithms(){}
-    KinematicsAlgorithms::~KinematicsAlgorithms(){}
+    KinematicsAlgorithms::KinematicsAlgorithms()= default;
+    KinematicsAlgorithms::~KinematicsAlgorithms()= default;
 
 
 
-    std::pair<float, float> KinematicsAlgorithms::Forward_odometry (std::pair<int, int> p)
+    Coordinates  KinematicsAlgorithms::Forward_odometry (const Encoders in)
     {
-        float delta_dl = R * (2*M_PI/576*p.first );
-        float delta_dr = R * (2*M_PI/576*p.second );
+        auto delta_dl = R * (2*M_PI/576*in.l);
+        auto delta_dr = R * (2*M_PI/576*in.r );
 
-        float  delta_d = (delta_dl + delta_dr)/2;
-        float delta_fi = (delta_dl - delta_dr)/L;
+        auto  delta_d = (delta_dl + delta_dr)/2;
+        auto delta_fi = (delta_dl - delta_dr)/L;
 
-        float delta_x = delta_d * std::cos(delta_fi/2);
-        float delta_y = delta_d * std::sin(delta_fi/2);
+        Coordinates out{};
+        out.x = delta_d * std::cos(delta_fi/2);
+        out.y = delta_d * std::sin(delta_fi/2);
 
-        return std::make_pair(delta_x, delta_y);
+        return out;
     }
 
-    std::pair<float, float> KinematicsAlgorithms::Inverse_kinematics (std::pair<float, float> p)
+    Encoders KinematicsAlgorithms::Inverse_odometry (const Coordinates in)
     {
-      float v_r = (2*p.first + p.second*L)/(2*R);
-      float v_l = (2*p.first - p.second*L)/(2*R);
-      return std::make_pair(v_l, v_r);
+        Encoders out{};
+
+
+        return out;
     }
 
-
-    std::pair<float, float> KinematicsAlgorithms::Inverse (std::pair<float, float> p)
+    WheelSpeed KinematicsAlgorithms::Inverse_kinematics (const RobotSpeed in)
     {
-
-
-      return std::make_pair(p.second, p.first);
+        WheelSpeed out{};
+        out.r = (2*in.v + in.w*L)/(2*R);
+        out.l = (2*in.v - in.w*L)/(2*R);
+        return out;
     }
 
-    std::pair<float, float> KinematicsAlgorithms::Forward_kinematics (std::pair<float, float> p)
+    RobotSpeed KinematicsAlgorithms::Forward_kinematics (const WheelSpeed in)
     {
-        float w = (R * p.first -R * p.second)/L;
-        float v = (R * p.first/2 + R * p.second/2);
-        return std::make_pair(v, w);
+        RobotSpeed out{};
+        out.w = (R * in.l -R * in.r)/L;
+        out.v = (R * in.l/2 + R * in.r/2);
+        return out;
     }
 
 }

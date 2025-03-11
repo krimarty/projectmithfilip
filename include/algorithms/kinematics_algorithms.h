@@ -6,6 +6,36 @@
 #define ESTIMATION_ALGORITHM_H
 #include <utility>
 
+struct RobotSpeed{
+    double v; //linear
+    double w; //angluar
+};
+
+struct WheelSpeed{
+    double l; //left
+    double r; //right
+};
+
+struct Encoders{
+    int l; //left
+    int r; //right
+};
+
+struct Coordinates{
+    double x;
+    double y;
+};
+
+/*
+class Kinematics{
+    RobotSpeed forward(WheelSpeed);
+    WheelSpeed inverse(RobotSpeed);
+    Coordinates forward(Encoders);
+    Encoders inverse(Coordinates);
+}
+*/
+
+
 namespace algorithms {
     class KinematicsAlgorithms{
     public:
@@ -14,22 +44,13 @@ namespace algorithms {
         // Destructor (default)
         ~KinematicsAlgorithms();
 
-        void forward_kinematics();
-        void inverse_kinematics();
-
-
-        void estimate();
-        void inverse_estimate();
-
-        std::pair<float, float> Forward_odometry (std::pair<int, int> p);
-        std::pair<float, float> Inverse (std::pair<float, float> p);
-        std::pair<float, float> Inverse_kinematics (std::pair<float, float> p);
-        std::pair<float, float> Forward_kinematics (std::pair<float, float> p);
+        static Coordinates Forward_odometry (Encoders in);
+        static Encoders Inverse_odometry (Coordinates in);
+        static WheelSpeed Inverse_kinematics (RobotSpeed in);
+        static RobotSpeed Forward_kinematics (WheelSpeed in);
 
     private:
         // Variable to store the last received button press value
-        int iX;
-        int iY;
         // Subscriber for button press messages
 
     };

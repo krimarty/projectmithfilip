@@ -21,8 +21,7 @@ namespace nodes {
 
 
         // Function to retireve the last pressed button value
-        int get_button_pressed() const;
-        void publish_message(int l, int r);
+        void publish_motorSpeed(double l, double r);
 
     private:
         // Variable to store the last received button press value
