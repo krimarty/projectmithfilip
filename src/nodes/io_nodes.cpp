@@ -20,19 +20,35 @@ namespace nodes{
 
     void IoNode::publish_message(int option) {
         auto msg = std_msgs::msg::UInt8MultiArray();
+        int blue, red;
+        if (option > 0)
+        {
+            blue = 0;
+            red = 1;
+        }
+        else
+        {
+            blue = 1;
+            red = 0;
+        }
+
         msg.data.resize(12);
-        msg.data[0] = 30* option;
-        msg.data[1] = 30* option;
-        msg.data[2] = 30* option;
-        msg.data[3] = 30* option;
-        msg.data[4] = 30* option;
-        msg.data[5] = 30* option;
-        msg.data[6] = 30* option;
-        msg.data[7] = 30* option;
-        msg.data[8] = 30* option;
-        msg.data[9] = 30* option;
-        msg.data[10] = 30* option;
-        msg.data[11] = 30* option;
+        //red
+        msg.data[0] = 255 * red;
+        msg.data[1] = 0;
+        msg.data[2] = 0;
+        //red
+        msg.data[3] = 255 * red;
+        msg.data[4] = 0;
+        msg.data[5] = 0;
+        //blue
+        msg.data[6] = 0;
+        msg.data[7] = 0;
+        msg.data[8] = 255* blue;
+        //blue
+        msg.data[9] = 0;
+        msg.data[10] = 0;
+        msg.data[11] = 255 * blue;
         rgb_publisher_->publish(msg);
         //RCLCPP_INFO(get_logger(), "Published: %d", msg.data[0]);
         }

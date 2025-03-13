@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
     Encoders encoders{};
     Encoders tmp_encoders{};
     Pose pose{};
+    int blink = 0;
 
 
 
@@ -78,6 +79,13 @@ int main(int argc, char* argv[])
         std::cout << tmp_coordinates.x << ", " << tmp_coordinates.y << std::endl;
         //std::cout << coordinates.x << ", " << coordinates.y << std::endl;
 
+        //blikani
+        example_class1->publish_message(blink);
+        if (blink == 0) {
+            blink = 1;
+        } else {
+            blink = 0;
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
