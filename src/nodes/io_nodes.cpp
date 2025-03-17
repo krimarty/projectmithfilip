@@ -34,17 +34,17 @@ namespace nodes{
 
         msg.data.resize(12);
         //red
-        msg.data[0] = 255 * red;
+        msg.data[0] = 0;
         msg.data[1] = 0;
-        msg.data[2] = 0;
+        msg.data[2] = 255 * blue;
         //red
-        msg.data[3] = 255 * red;
+        msg.data[6] = 255* red;
+        msg.data[7] = 0;
+        msg.data[8] = 0;
+        //blue
+        msg.data[3] = 55* red;
         msg.data[4] = 0;
         msg.data[5] = 0;
-        //blue
-        msg.data[6] = 0;
-        msg.data[7] = 0;
-        msg.data[8] = 255* blue;
         //blue
         msg.data[9] = 0;
         msg.data[10] = 0;
