@@ -8,6 +8,15 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/u_int16_multi_array.hpp>
 
+#define L_MIN 50
+#define L_MAX 990
+#define R_MIN 50
+#define R_MAX 1010
+
+#define LSM_A (-0.1507)
+#define LSM_B 0
+
+
 namespace nodes {
     enum class DiscreteLinePose {
         LineOnLeft,
@@ -46,8 +55,8 @@ namespace nodes {
         {
             const int tmp1 = msg->data[0];
             const int tmp2 = msg->data[1];
-            l_sensor = (static_cast<float>(tmp1) - 38) / (980.0f - 38);
-            r_sensor = (static_cast<float>(tmp2) - 38) / (980.0f - 38);
+            l_sensor = (static_cast<float>(tmp1) - L_MIN) / (L_MAX - L_MIN);
+            r_sensor = (static_cast<float>(tmp2) - R_MIN) / (R_MAX - R_MIN);
             //std::cout << "l_sensor: " << l_sensor << " r_sensor: " << r_sensor << msg->data[0] << std::endl;
         }
 

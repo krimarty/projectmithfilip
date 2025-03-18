@@ -86,11 +86,14 @@ int main(int argc, char* argv[])
         //blikani
 
         example_class1->publish_message(blink);
+        /*
         if (blink == 0) {
             blink = 1;
         } else {
             blink = 0;
         }
+        */
+        /*
         nodes::DiscreteLinePose tmp = line_class->get_discrete_line_pose();
         auto ovladac = joystick_class->get_v_();
         auto ovladac1 = joystick_class->get_w_();
@@ -104,23 +107,22 @@ int main(int argc, char* argv[])
         {
             if (tmp == nodes::DiscreteLinePose::LineNone)
             {
-                std::cout << "DiscreteLinePose::LineNone" << std::endl;
+                //std::cout << "DiscreteLinePose::LineNone" << std::endl;
                 robot_speed.w = 0;
             }
             /*if (tmp == nodes::DiscreteLinePose::LineBoth)
-                std::cout << "DiscreteLinePose::LineBoth" << std::endl;*/
+                std::cout << "DiscreteLinePose::LineBoth" << std::endl;
             else if (tmp == nodes::DiscreteLinePose::LineOnLeft)
             {
-                std::cout << "DiscreteLinePose::LineOnLeft" << std::endl;
+                //std::cout << "DiscreteLinePose::LineOnLeft" << std::endl;
                 robot_speed.w = 0.12;
             }
             else if (tmp == nodes::DiscreteLinePose::LineOnRight)
             {
-                std::cout << "DiscreteLinePose::LineOnRight" << std::endl;
+                //std::cout << "DiscreteLinePose::LineOnRight" << std::endl;
                 robot_speed.w = -0.12;
             }
             robot_speed.v = 0.025;
-
         }
         //std:: cout << line_class->get_continuous_line_pose() << std::endl;
 
@@ -128,8 +130,9 @@ int main(int argc, char* argv[])
 
         wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
+        */
         //Slimovina
-        //std:: cout << line_class->get_discrete_line_pose() << std::endl;
+        std:: cout << line_class->get_continuous_line_pose() << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     // Shutdown ROS 2

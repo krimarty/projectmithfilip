@@ -11,8 +11,8 @@ namespace nodes {
 
     }
 
-    float LineNode::estimate_continuous_line_pose(float left_value, float right_value){
-        return (left_value - right_value) * 11;
+    float LineNode::estimate_continuous_line_pose(const float left_value, const float right_value){
+        return (right_value - left_value) / LSM_A;
     }
 
     DiscreteLinePose LineNode::estimate_discrete_line_pose(float l_norm, float r_norm)
@@ -26,5 +26,4 @@ namespace nodes {
         else
             return DiscreteLinePose::LineNone;
     }
-
 }
