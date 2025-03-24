@@ -22,7 +22,7 @@ set(SRC
         src/nodes/encoder_node.cpp
         src/algorithms/kinematics_algorithms.cpp
         src/nodes/joystick_node.cpp
-        src/nodes/line_node.cpp
+        src/nodes/line_loop.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)

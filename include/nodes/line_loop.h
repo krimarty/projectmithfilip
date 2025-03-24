@@ -1,12 +1,16 @@
 //
-// Created by student on 17.3.25.
+// Created by student on 24.3.25.
 //
 
-#ifndef LINE_NODE_H
-#define LINE_NODE_H
+#ifndef LINE_LOOP_H
+#define LINE_LOOP_H
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/u_int16_multi_array.hpp>
+#include <std_msgs/msg/u_int8.hpp>
+#include <std_msgs/msg/u_int8_multi_array.hpp>
+#include <algorithms/pid.h>
+#include <atomic>
 
 #define L_MIN 50
 #define L_MAX 990
@@ -16,7 +20,6 @@
 #define LSM_A (-0.1507)
 #define LSM_B 0
 
-
 namespace nodes {
     enum class DiscreteLinePose {
         LineOnLeft,
@@ -25,12 +28,12 @@ namespace nodes {
         LineBoth,
     };
 
-    class LineNode : public rclcpp::Node {
+    class LineLoop : public rclcpp::Node {
     public:
 
-        LineNode();
+        LineLoop();
 
-        ~LineNode() override = default;
+        ~LineLoop() override = default;
 
         // relative pose to line in meters
         float get_continuous_line_pose()
@@ -43,13 +46,18 @@ namespace nodes {
             return estimate_discrete_line_pose(l_sensor, r_sensor);
         }
 
+        void publish_motorSpeed(double l, double r);
+
+        void line_loop_timer_callback();
 
     private:
 
-        float l_sensor;
-        float r_sensor;
+        std::atomic<float> l_sensor;
+        std::atomic<float> r_sensor;
 
         rclcpp::Subscription<std_msgs::msg::UInt16MultiArray>::SharedPtr line_sensors_subscriber_;
+        rclcpp::Publisher<std_msgs::msg::UInt8MultiArray>::SharedPtr motorSpeed_publisher_;
+        std::shared_ptr<algorithms::Pid> pid_;
 
         void on_line_sensors_msg(std::shared_ptr<std_msgs::msg::UInt16MultiArray> msg)
         {
@@ -60,13 +68,11 @@ namespace nodes {
             //std::cout << "l_sensor: " << l_sensor << " r_sensor: " << r_sensor << msg->data[0] << std::endl;
         }
 
-
         float estimate_continuous_line_pose(float left_value, float right_value);
 
         DiscreteLinePose estimate_discrete_line_pose(float l_norm, float r_norm);
     };
+
 }
 
-
-
-#endif //LINE_NODE_H
+#endif //LINE_LOOP_H
