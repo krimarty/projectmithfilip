@@ -12,7 +12,10 @@ namespace nodes {
         motorSpeed_publisher_ = create_publisher<std_msgs::msg::UInt8MultiArray>("/bpc_prp_robot/set_motor_speeds", 1);
 
         //DrillLogger_ = std::make_shared<DrillLogger>();
-        pid_ = std::make_shared<algorithms::Pid>(65,0.01,0.01);    }
+        //pid_ = std::make_shared<algorithms::Pid>(50*0.6,0.5*16,0.5);    }
+        //pid_ = std::make_shared<algorithms::Pid>(50*0.9,0.4,0.7);    }
+        pid_ = std::make_shared<algorithms::Pid>(20,0,0);    }
+
 
     float LineLoop::estimate_continuous_line_pose(const float left_value, const float right_value){
         return (right_value - left_value) / LSM_A;
@@ -46,11 +49,11 @@ namespace nodes {
 
         RobotSpeed robot_speed{};
 
-      /*
+
         nodes::DiscreteLinePose tmp = estimate_discrete_line_pose(l_sensor, r_sensor);;
 
 
-
+        /*
         if (tmp == nodes::DiscreteLinePose::LineNone){
             std::cout << "DiscreteLinePose::LineNone" << std::endl;
             robot_speed.w = 0;
@@ -58,21 +61,21 @@ namespace nodes {
         //if (tmp == nodes::DiscreteLinePose::LineBoth)
         else if (tmp == nodes::DiscreteLinePose::LineOnLeft){
             std::cout << "DiscreteLinePose::LineOnLeft" << std::endl;
-            robot_speed.w = 0.12;
+            robot_speed.w = 0.18;
         }
         else if (tmp == nodes::DiscreteLinePose::LineOnRight){
             std::cout << "DiscreteLinePose::LineOnRight" << std::endl;
-            robot_speed.w = -0.12;
+            robot_speed.w = -0.18;
         }
-        robot_speed.v = 0.025;
+        robot_speed.v = 0.04;
 
         WheelSpeed wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
         publish_motorSpeed(wheel_speed.l, wheel_speed.r);
-       */
+        */
 
 
         robot_speed.w = pid_->step(estimate_continuous_line_pose(l_sensor, r_sensor)/1000, 0.01);
-        robot_speed.v = 0.08;
+        robot_speed.v = 0.03;
 
         std::cout << l_sensor << " " << r_sensor << std::endl;
         WheelSpeed wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);

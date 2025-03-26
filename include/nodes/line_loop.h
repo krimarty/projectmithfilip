@@ -17,7 +17,7 @@
 #define R_MIN 50
 #define R_MAX 1010
 
-#define LSM_A (-0.1507)
+#define LSM_A (-0.13)
 #define LSM_B 0
 
 namespace nodes {
