@@ -12,10 +12,10 @@
 #include <algorithms/pid.h>
 #include <atomic>
 
-#define L_MIN 50
-#define L_MAX 990
-#define R_MIN 50
-#define R_MAX 1010
+#define L_MIN 30
+#define L_MAX 920
+#define R_MIN 30
+#define R_MAX 980
 
 #define LSM_A (-0.13)
 #define LSM_B 0
