@@ -14,7 +14,9 @@ namespace nodes {
         //DrillLogger_ = std::make_shared<DrillLogger>();
         //pid_ = std::make_shared<algorithms::Pid>(50*0.6,0.5*16,0.5);    }
         //pid_ = std::make_shared<algorithms::Pid>(50*0.9,0.4,0.7);    }
-        pid_ = std::make_shared<algorithms::Pid>(40,0.6,0);    }
+        //pid_ = std::make_shared<algorithms::Pid>(40,0.6,0);    } //osmicka
+        pid_ = std::make_shared<algorithms::Pid>(35,0.6,0);    }
+
 
 
     float LineLoop::estimate_continuous_line_pose(const float left_value, const float right_value){
@@ -75,7 +77,8 @@ namespace nodes {
 
 
         robot_speed.w = pid_->step(estimate_continuous_line_pose(l_sensor, r_sensor)/1000, 0.01);
-        robot_speed.v = 0.05;
+        //robot_speed.v = 0.05;
+        robot_speed.v = 0.035;
 
         std::cout << l_sensor << " " << r_sensor << std::endl;
         WheelSpeed wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);

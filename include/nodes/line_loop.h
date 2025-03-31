@@ -13,8 +13,8 @@
 #include <atomic>
 
 #define L_MIN 30
-#define L_MAX 920
-#define R_MIN 30
+#define L_MAX 900
+#define R_MIN 500
 #define R_MAX 980
 
 #define LSM_A (-0.13)
