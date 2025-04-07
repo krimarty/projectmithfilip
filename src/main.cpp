@@ -1,3 +1,4 @@
+#include <nodes/lidar_node.h>
 #include <rclcpp/rclcpp.hpp>
 #include "RosExampleClass.h"
 #include "nodes/io_node.h"
@@ -6,6 +7,8 @@
 #include "algorithms/kinematics_algorithms.h"
 #include "nodes/joystick_node.h"
 #include "nodes/line_node.h"
+#include "algorithms/pid.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -25,8 +28,9 @@ int main(int argc, char* argv[])
     auto motor_class = std::make_shared<nodes::MotorNode>();
     auto encoder_class = std::make_shared<nodes::EncoderNode>();
     auto line_class = std::make_shared<nodes::LineNode>();
+    auto lidar_class = std::make_shared<nodes::LidarNode>();
 
-
+    algorithms::Pid pid(0.5, 0.004 ,0);
     algorithms::KinematicsAlgorithms kinematics_object;
 
 
@@ -37,6 +41,7 @@ int main(int argc, char* argv[])
     executor->add_node(motor_class);
     executor->add_node(encoder_class);
     executor->add_node(line_class);
+    executor->add_node(lidar_class);
     //executor->add_node(node2);
 
     // Run the executor (handles callbacks for both nodes)
@@ -44,7 +49,8 @@ int main(int argc, char* argv[])
 
     Coordinates coordinates{0 ,0};
     WheelSpeed wheel_speed{};
-    RobotSpeed robot_speed{10, 0.5};
+    RobotSpeed robot_speed{0, 0
+    };
     Encoders encoders{};
     Encoders tmp_encoders{};
     Pose pose{};
@@ -60,6 +66,7 @@ int main(int argc, char* argv[])
 
     while (rclcpp::ok())
     {
+/*
         // Toceni s motory
         //robot_speed.v = joystick_class->get_v_();
         //robot_speed.w = joystick_class->get_w_();
@@ -83,17 +90,9 @@ int main(int argc, char* argv[])
         //std::cout << tmp_coordinates.x << ", " << tmp_coordinates.y << std::endl;
         //std::cout << coordinates.x << ", " << coordinates.y << std::endl;
 
-        //blikani
 
-        example_class1->publish_message(blink);
         /*
-        if (blink == 0) {
-            blink = 1;
-        } else {
-            blink = 0;
-        }
-        */
-        /*
+        // LINE FOLLOWING - BANG BANG I HIT THE GROUND, PRIORITNE JOY
         nodes::DiscreteLinePose tmp = line_class->get_discrete_line_pose();
         auto ovladac = joystick_class->get_v_();
         auto ovladac1 = joystick_class->get_w_();
@@ -127,13 +126,28 @@ int main(int argc, char* argv[])
         //std:: cout << line_class->get_continuous_line_pose() << std::endl;
 
 
+        wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
+        motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
+        */ // END OF LINE FOLLOWING
+        //Slimovina
+
+        //drzhubukrizu
+
+
+        //std:: cout << line_class->get_continuous_line_pose() << std::endl;
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        //LIDAR PID
+        robot_speed.w = pid.step(lidar_class->get_result(), 0.01);
+        std::cout << robot_speed.w << std::endl;
+        //robot_speed.v = 0.05;
+        robot_speed.v = 0.035;
 
         wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
-        */
-        //Slimovina
-        std:: cout << line_class->get_continuous_line_pose() << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     // Shutdown ROS 2
     rclcpp::shutdown();
