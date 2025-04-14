@@ -8,6 +8,16 @@
 #include "nodes/joystick_node.h"
 #include "nodes/line_node.h"
 #include "algorithms/pid.h"
+#include "nodes/imu_node.h"
+
+enum states
+{
+    calibration,
+    corridor_following,
+    intersection,
+    turning,
+
+};
 
 
 int main(int argc, char* argv[])
@@ -29,8 +39,11 @@ int main(int argc, char* argv[])
     auto encoder_class = std::make_shared<nodes::EncoderNode>();
     auto line_class = std::make_shared<nodes::LineNode>();
     auto lidar_class = std::make_shared<nodes::LidarNode>();
+    auto imu_class = std::make_shared<nodes::ImuNode>();
 
-    algorithms::Pid pid(0.5, 0.004 ,0);
+
+    algorithms::Pid pid_coridor(0.8, 0.004 ,0);
+    algorithms::Pid pid_imu(0.5, 0.004 ,0);
     algorithms::KinematicsAlgorithms kinematics_object;
 
 
@@ -42,6 +55,7 @@ int main(int argc, char* argv[])
     executor->add_node(encoder_class);
     executor->add_node(line_class);
     executor->add_node(lidar_class);
+    executor->add_node(imu_class);
     //executor->add_node(node2);
 
     // Run the executor (handles callbacks for both nodes)
@@ -63,6 +77,9 @@ int main(int argc, char* argv[])
     tmp_encoders.r = encoder_class->get_right_value();
 
     wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
+
+
+    states current_state = states::calibration;
 
     while (rclcpp::ok())
     {
@@ -137,8 +154,9 @@ int main(int argc, char* argv[])
         //std:: cout << line_class->get_continuous_line_pose() << std::endl;
         //std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+        /*
         //LIDAR PID
-        robot_speed.w = pid.step(lidar_class->get_result(), 0.01);
+        robot_speed.w = pid_coridor.step(lidar_class->get_result(), 0.01);
         std::cout << robot_speed.w << std::endl;
         //robot_speed.v = 0.05;
         robot_speed.v = 0.035;
@@ -146,6 +164,67 @@ int main(int argc, char* argv[])
         wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
         motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
+        */
+
+        switch (current_state)
+        {
+            case states::calibration:
+                if (imu_class->calibrated_)
+                    current_state = states::corridor_following;
+                break;
+            case states::corridor_following:
+                if (line_class->line_detected())
+                {
+                    pose.x = 0; pose.y = 0; pose.theta = 0;
+                    tmp_encoders.l = encoder_class->get_left_value();
+                    tmp_encoders.r = encoder_class->get_right_value();
+                    current_state = states::intersection;
+                }
+                else
+                {
+                    robot_speed.w = pid_coridor.step(lidar_class->get_result(), 0.01);
+                    std::cout << robot_speed.w << std::endl;
+                    robot_speed.v = 0.035;
+                }
+
+                break;
+            case states::intersection:
+                if (pose.x < 0.2)
+                {
+                    // Ziskani diference z enkoderu
+                    encoders.l = encoder_class->get_left_value() - tmp_encoders.l;
+                    encoders.r = encoder_class->get_right_value() -tmp_encoders.r;
+                    tmp_encoders.l = encoder_class->get_left_value();
+                    tmp_encoders.r = encoder_class->get_right_value();
+
+                    // Vypocet nove pozy
+                    pose = algorithms::KinematicsAlgorithms::update_pose(pose, encoders);
+
+                    robot_speed.v = 0.02;
+                    robot_speed.w = 0;
+                }
+                else if (pose.x > 0.2)
+                {
+                    robot_speed.v = 0;
+                    robot_speed.w = 0;
+                }
+                std::cout << pose.x << " m, " << pose.y << " m, " << pose.theta << " rad" << std::endl;
+
+
+                break;
+            case states::turning:
+                /*
+                yaw_error = imu_class->planar_integrator_.getYaw();
+                robot_speed.w = pid_imu.step(yaw_error, 0.01);
+                robot_speed.v = 0;
+                */
+                break;
+        }
+
+
+
+        wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
+        motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }

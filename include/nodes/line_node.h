@@ -43,6 +43,12 @@ namespace nodes {
             return estimate_discrete_line_pose(l_sensor, r_sensor);
         }
 
+        bool line_detected()
+        {
+            const DiscreteLinePose tmp = get_discrete_line_pose();
+            return  (tmp == DiscreteLinePose::LineOnLeft || tmp == DiscreteLinePose::LineOnRight || tmp == DiscreteLinePose::LineBoth);
+        }
+
 
     private:
 

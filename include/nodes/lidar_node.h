@@ -36,7 +36,6 @@ namespace nodes
                 results.left = 0;
             if (std::isnan(results.right))
                 results.right = 0;
-            std::cout << "front: " << results.front << "left: " << results.left << "right: " << results.right << std::endl;
             }
     };
 }

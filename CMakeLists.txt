@@ -24,6 +24,7 @@ set(SRC
         src/nodes/joystick_node.cpp
         src/nodes/line_node.cpp
         src/nodes/lidar_node.cpp
+        src/nodes/imu_node.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)
