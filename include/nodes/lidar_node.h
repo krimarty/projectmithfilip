@@ -25,7 +25,10 @@ namespace nodes
 
 
     private:
+        algorithms::LidarFiltr filtr;
+
         algorithms::LidarFiltrResults results{};
+        algorithms::LidarLines lines{};
 
         rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_subscription_;
 
@@ -36,7 +39,15 @@ namespace nodes
                 results.left = 0;
             if (std::isnan(results.right))
                 results.right = 0;
+
+            lines = filtr.line_aprox(msg->ranges, msg->angle_min, msg->angle_max);
+            std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
+            std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
+            std::cout << "Leva zadni " << "y=" << lines.leftBack.iK << "x + " << lines.leftBack.iQ << std::endl;
+            std::cout << "Prava zadni " << "y=" << lines.rightBack.iK << "x + " << lines.rightBack.iQ << std::endl;
             }
+
+
     };
 }
 

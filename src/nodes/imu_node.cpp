@@ -30,7 +30,7 @@ namespace nodes{
         else
         {
             planar_integrator_.update(msg->angular_velocity.z, elapsed.count());
-            std::cout << planar_integrator_.getYaw() << std::endl;
+            //std::cout << planar_integrator_.getYaw() << std::endl;
         }
 
 

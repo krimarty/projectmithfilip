@@ -10,6 +10,12 @@
 
 namespace algorithms {
 
+    struct line
+    {
+        float iK; //smernice
+        float iQ; //offset
+    };
+
     // Structure to store filtered average distances in key directions
     struct LidarFiltrResults {
         float front;
@@ -18,9 +24,80 @@ namespace algorithms {
         float right;
     };
 
+    struct LidarLines {
+        line leftFront;
+        line rightFront;
+        line leftBack;
+        line rightBack;
+    };
+
+    struct Point2D {
+        float x;
+        float y;
+    };
+
     class LidarFiltr {
     public:
         LidarFiltr() = default;
+
+        line fitLineLeastSquares(const std::vector<Point2D>& points) {
+            float sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            int n = points.size();
+
+            if (n < 2) return {0, 0}; // nelze fitovat
+
+            for (const auto& pt : points) {
+                sumX += pt.x;
+                sumY += pt.y;
+                sumXY += pt.x * pt.y;
+                sumX2 += pt.x * pt.x;
+            }
+
+            float denominator = n * sumX2 - sumX * sumX;
+            if (denominator == 0) return {0, 0}; // vertikální přímka?
+
+            float k = (n * sumXY - sumX * sumY) / denominator;
+            float q = (sumY - k * sumX) / n;
+
+            return {k, q};
+        }
+
+        LidarLines line_aprox(std::vector<float> points, float angle_start, float angle_end)
+        {
+            std::vector<Point2D> leftFront, rightFront, leftBack, rightBack;
+
+            auto angle_step = (angle_end - angle_start) / points.size();
+
+            constexpr float bigAngle = 1.107148718;
+            constexpr float smallAngle = 0.6747409422;
+
+            for (size_t i = 0; i < points.size(); ++i) {
+                auto angle = angle_start + i * angle_step;
+                float r = points[i];
+
+                // Skip invalid (infinite) readings
+                if (points[i] > 10) {
+                    continue;
+                }
+
+                float x = r * std::cos(angle);
+                float y = r * std::sin(angle);
+
+                // Dělení na sektory – jednoduché rozdělení podle kvadrantů
+                if (angle > M_PI-bigAngle && angle < M_PI-smallAngle) rightFront.push_back({x, y});
+                else if (angle > (-M_PI+smallAngle) && angle < (-M_PI+bigAngle) ) leftFront.push_back({x, y});
+                else if (angle < 0-smallAngle && angle > 0-bigAngle) leftBack.push_back({x, y});
+                else if (angle > 0+smallAngle && angle < 0+bigAngle) rightBack.push_back({x, y});
+
+            }
+
+            return {
+                .leftFront = fitLineLeastSquares(leftFront),
+                .rightFront = fitLineLeastSquares(rightFront),
+                .leftBack = fitLineLeastSquares(leftBack),
+                .rightBack = fitLineLeastSquares(rightBack)
+            };
+        }
 
         static LidarFiltrResults apply_filter(std::vector<float> points, float angle_start, float angle_end) {
 

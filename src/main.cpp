@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
                 else
                 {
                     robot_speed.w = pid_coridor.step(lidar_class->get_result(), 0.01);
-                    std::cout << robot_speed.w << std::endl;
+                    //std::cout << robot_speed.w << std::endl;
                     robot_speed.v = 0.035;
                 }
 
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
                     robot_speed.v = 0;
                     robot_speed.w = 0;
                 }
-                std::cout << pose.x << " m, " << pose.y << " m, " << pose.theta << " rad" << std::endl;
+                //std::cout << pose.x << " m, " << pose.y << " m, " << pose.theta << " rad" << std::endl;
 
 
                 break;
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 
 
         wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
-        motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
+        //motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
