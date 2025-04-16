@@ -25,6 +25,7 @@ set(SRC
         src/nodes/line_node.cpp
         src/nodes/lidar_node.cpp
         src/nodes/imu_node.cpp
+        src/nodes/coridor_node.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)

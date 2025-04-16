@@ -53,13 +53,13 @@ namespace nodes
         {
             constexpr float setPoint = 0.2;
             if (valid_line(leftFront))
-                return setPoint+lines.leftFront.iQ;
+                return abs(setPoint+lines.leftFront.iQ);
             if (valid_line(leftBack))
-                return setPoint+lines.leftBack.iQ;
+                return abs(setPoint+lines.leftBack.iQ);
             if (valid_line(rightFront))
-                return setPoint-lines.rightFront.iQ;
+                return abs(setPoint-lines.rightFront.iQ);
             if (valid_line(rightBack))
-                return setPoint-lines.rightBack.iQ;
+                return abs(setPoint-lines.rightBack.iQ);
             return 0;
         }
 
