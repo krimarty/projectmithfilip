@@ -41,8 +41,8 @@ int main(int argc, char* argv[])
     auto lidar_class = std::make_shared<nodes::LidarNode>();
     auto imu_class = std::make_shared<nodes::ImuNode>();
 
-
-    algorithms::Pid pid_coridor(0.8, 0.004 ,0);
+    algorithms::Pid pid_coridor_center(1, 0 ,0.3);
+    algorithms::Pid pid_coridor_angle(1, 0.002 ,0.3);
     algorithms::Pid pid_imu(0.5, 0.004 ,0);
     algorithms::KinematicsAlgorithms kinematics_object;
 
@@ -80,6 +80,9 @@ int main(int argc, char* argv[])
 
 
     states current_state = states::calibration;
+
+    float tmp1 = 0;
+    float tmp2 = 0;
 
     while (rclcpp::ok())
     {
@@ -166,6 +169,7 @@ int main(int argc, char* argv[])
 
         */
 
+
         switch (current_state)
         {
             case states::calibration:
@@ -173,21 +177,25 @@ int main(int argc, char* argv[])
                     current_state = states::corridor_following;
                 break;
             case states::corridor_following:
-                if (line_class->line_detected())
+
+                tmp1 = pid_coridor_angle.step(lidar_class->lines.leftFront.iK, 0.01);
+                tmp2 = pid_coridor_center.step(lidar_class->get_error(nodes::leftFront), 0.01);
+
+                if (lidar_class->from_centre() < 0.01)
                 {
-                    pose.x = 0; pose.y = 0; pose.theta = 0;
-                    tmp_encoders.l = encoder_class->get_left_value();
-                    tmp_encoders.r = encoder_class->get_right_value();
-                    current_state = states::intersection;
+                    robot_speed.w = tmp1;
+                    std::cout << "Uhluju" << std::endl;
                 }
                 else
                 {
-                    robot_speed.w = pid_coridor.step(lidar_class->get_result(), 0.01);
-                    //std::cout << robot_speed.w << std::endl;
-                    robot_speed.v = 0.035;
+                    robot_speed.w = tmp2;
+                    std::cout << "Centruju" << std::endl;
                 }
 
+                //std::cout << robot_speed.w << std::endl;
+                robot_speed.v = 0.055;
                 break;
+
             case states::intersection:
                 if (pose.x < 0.2)
                 {
@@ -224,7 +232,7 @@ int main(int argc, char* argv[])
 
 
         wheel_speed = algorithms::KinematicsAlgorithms::Inverse_kinematics(robot_speed);
-        //motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
+        motor_class->publish_motorSpeed(wheel_speed.l, wheel_speed.r);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
