@@ -20,35 +20,64 @@ namespace nodes{
 
     void IoNode::publish_message(int option) {
         auto msg = std_msgs::msg::UInt8MultiArray();
-        int blue, red;
-        if (option > 0)
-        {
-            blue = 0;
-            red = 1;
-        }
-        else
-        {
-            blue = 1;
-            red = 0;
-        }
-
         msg.data.resize(12);
-        //red
         msg.data[0] = 0;
         msg.data[1] = 0;
-        msg.data[2] = 255 * blue;
-        //red
-        msg.data[6] = 255* red;
+        msg.data[2] = 0;
+        msg.data[6] = 0;
         msg.data[7] = 0;
         msg.data[8] = 0;
-        //blue
-        msg.data[3] = 55* red;
+        msg.data[3] = 0;
         msg.data[4] = 0;
         msg.data[5] = 0;
-        //blue
         msg.data[9] = 0;
         msg.data[10] = 0;
-        msg.data[11] = 255 * blue;
+        msg.data[11] = 0;
+
+
+
+        if (option == 0)
+        {
+            msg.data[1] = 80;//zadni
+
+        }
+        else if (option == 1)
+        {
+            msg.data[4] = 80;//prava
+
+        }
+        else if (option == 2)
+        {
+            msg.data[7] = 80;//leva
+
+        }
+        else if (option == 3)
+        {
+            msg.data[10] = 80;//predni
+        }
+        else if (option == 4)
+        {
+            msg.data[1] = 80;//vsecky
+            msg.data[4] = 80;
+            msg.data[7] = 80;
+            msg.data[10] = 80;
+        }
+        else if (option == 5)
+        {
+            msg.data[7] = 80; // T strany
+            msg.data[4] = 80;
+        }
+        else if (option == 6)
+        {
+            msg.data[7] = 80; // T predni, leva
+            msg.data[10] = 80;
+        }
+        else if (option == 7)
+        {
+            msg.data[10] = 80; // T predni, prva
+            msg.data[4] = 80;
+        }
+
         rgb_publisher_->publish(msg);
         //RCLCPP_INFO(get_logger(), "Published: %d", msg.data[0]);
         }
