@@ -85,7 +85,7 @@ namespace nodes
         bool valid_line(const mode mode) const
         {
             //constexpr float maxDistance = 0.15;
-            constexpr float maxK = 0.2;
+            constexpr float maxK = 0.4;
             switch (mode)
             {
                 case leftFront:
@@ -181,8 +181,8 @@ namespace nodes
                 results.right = 0;
 
             lines = filtr.line_aprox(msg->ranges, msg->angle_min, msg->angle_max);
-            std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
-            std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
+            //std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
+            //std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
             //std::cout << "Leva zadni " << "y=" << lines.leftBack.iK << "x + " << lines.leftBack.iQ << std::endl;
             //std::cout << "Prava zadni " << "y=" << lines.rightBack.iK << "x + " << lines.rightBack.iQ << std::endl;
             }

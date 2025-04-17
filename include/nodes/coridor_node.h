@@ -29,6 +29,7 @@ namespace nodes {
     {
         moveToTargetAhead,
         turning,
+        finished,
     };
 
     class CorridorNode : public rclcpp::Node {
@@ -64,6 +65,8 @@ namespace nodes {
         RobotSpeed robot_speed;
 
         states next_state(states currentState);
+        void line_select();
+
         mode line = mode::leftFront;
 
 

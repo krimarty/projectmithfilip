@@ -1,6 +1,5 @@
 #include <nodes/lidar_node.h>
 #include <rclcpp/rclcpp.hpp>
-#include "nodes/io_node.h"
 #include "nodes/encoder_node.h"
 #include "nodes/joystick_node.h"
 #include "nodes/line_node.h"
@@ -15,7 +14,6 @@ int main(int argc, char* argv[])
     auto executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
 
     // Create instances of RosExampleClass using the existing nodes
-    auto example_class1 = std::make_shared<nodes::IoNode>();
     auto joystick_class = std::make_shared<nodes::JoystickNode>();
 
     auto encoder_class = std::make_shared<nodes::EncoderNode>();
@@ -24,7 +22,6 @@ int main(int argc, char* argv[])
     auto coridor_class = std::make_shared<nodes::CorridorNode>();
 
     // Add nodes to the executor
-    executor->add_node(example_class1);
     executor->add_node(joystick_class);
     executor->add_node(encoder_class);
     executor->add_node(line_class);
