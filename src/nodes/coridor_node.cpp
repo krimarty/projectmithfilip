@@ -18,6 +18,7 @@ namespace nodes{
 
 
     {
+        camera_class = std::make_shared<nodes::CameraNode>();
         imu_class = std::make_shared<nodes::ImuNode>();
         motor_class = std::make_shared<nodes::MotorNode>();
         lidar_class = std::make_shared<nodes::LidarNode>();
@@ -134,9 +135,9 @@ namespace nodes{
         robot_speed.v = 0.1;
 
         if (0.02 > abs(lidar_class->get_error_angle(line))) {
-            std::cout << "K: " << std::abs(lidar_class->get_error_angle(line)) << "yaw: " << imu_class->planar_integrator_.getYaw() << std::endl;
+            //std::cout << "K: " << std::abs(lidar_class->get_error_angle(line)) << "yaw: " << imu_class->planar_integrator_.getYaw() << std::endl;
             imu_class->planar_integrator_.reset();
-            std::cout << "yaw after reset:" << imu_class->planar_integrator_.getYaw() << std::endl;
+            //std::cout << "yaw after reset:" << imu_class->planar_integrator_.getYaw() << std::endl;
 
         }
     }
@@ -163,6 +164,7 @@ namespace nodes{
 
         default:
             robot_speed.w = 0;
+            imu_class->planar_integrator_.reset();
             break;
         }
     }
@@ -189,6 +191,7 @@ namespace nodes{
 
         default:
                 robot_speed.w = 0;
+                imu_class->planar_integrator_.reset();
             break;
         }
 
@@ -205,11 +208,11 @@ namespace nodes{
         if (std::abs(lidar_class->get_error_angle(line)) > 0.3) {
             if (line == leftFront) {
                 line = rightFront;
-                std::cout << "prava strana " << std::endl;
+                //std::cout << "prava strana " << std::endl;
             }
             else {
                 line = leftFront;
-                std::cout << "leva strana " << std::endl;
+                //std::cout << "leva strana " << std::endl;
             }
         }
     }

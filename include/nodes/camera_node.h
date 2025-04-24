@@ -9,6 +9,12 @@
 //
 
 #include <rclcpp/rclcpp.hpp>
+#include <image_transport/image_transport.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/msg/image.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <algorithms/aruco_detector.h>
+
 
 
 namespace nodes {
@@ -19,7 +25,10 @@ namespace nodes {
         // Destructor (default)
         ~CameraNode() override = default;
     private:
+        void on_image_msg(const sensor_msgs::msg::Image::ConstSharedPtr& msg);
 
+        rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
+        algorithms::ArucoDetector aruco_detector;
     };
 }
 #endif //CAMERA_NODE_H
