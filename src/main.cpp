@@ -5,6 +5,7 @@
 #include "nodes/line_node.h"
 #include "algorithms/pid.h"
 #include "nodes/coridor_node.h"
+#include "nodes/maze_node.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,6 +22,8 @@ int main(int argc, char* argv[])
 
     auto coridor_class = std::make_shared<nodes::CorridorNode>();
 
+    auto maze_class = std::make_shared<nodes::MazeNode>();
+
     // Add nodes to the executor
     executor->add_node(joystick_class);
     executor->add_node(encoder_class);
@@ -33,13 +36,21 @@ int main(int argc, char* argv[])
     executor->add_node(coridor_class->io_class);
     executor->add_node(coridor_class->camera_class);
 
+    executor->add_node(maze_class);
+    executor->add_node(maze_class->imu_class);
+    executor->add_node(maze_class->lidar_class);
+    executor->add_node(maze_class->motor_class);
+    executor->add_node(maze_class->io_class);
+    executor->add_node(maze_class->camera_class);
+
 
     // Run the executor (handles callbacks for both nodes)
     auto executor_thread = std::thread([&executor]() { executor->spin(); });
 
     while (rclcpp::ok())
     {
-        coridor_class->corridor_routine();
+        //coridor_class->corridor_routine();
+        maze_class->maze_routine();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     // Shutdown ROS 2

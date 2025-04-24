@@ -18,6 +18,8 @@ namespace nodes
         rightFront,
         leftBack,
         rightBack,
+        left,
+        right,
     };
 
     enum intersectionType
@@ -65,6 +67,10 @@ namespace nodes
                 return  lines.rightFront.iK;
             if (mode == rightBack)
                 return  lines.rightBack.iK;
+            if (mode == right)
+                return  lines.centerRight.iK;
+            if (mode == left)
+                return  lines.centerLeft.iK;
             return 0;
         }
 
@@ -84,13 +90,13 @@ namespace nodes
 
         bool valid_line(const mode mode) const
         {
-            //constexpr float maxDistance = 0.15;
+            constexpr float maxDistance = 0.4;
             constexpr float maxK = 0.4;
             switch (mode)
             {
                 case leftFront:
                     //if (lines.leftFront.iQ < maxDistance)
-                    if (lines.leftFront.iK > -maxK && lines.leftFront.iK < maxK )
+                    if (lines.leftFront.iK > -maxK && lines.leftFront.iK < maxK && lines.rightFront.iQ < maxDistance)
                         return true;
                     return false;
 
@@ -102,7 +108,7 @@ namespace nodes
 
                 case rightFront:
                     //if (lines.rightFront.iQ < maxDistance)
-                    if (lines.rightFront.iK > -maxK && lines.rightFront.iK < maxK )
+                    if (lines.rightFront.iK > -maxK && lines.rightFront.iK < maxK && lines.rightFront.iQ < maxDistance )
                         return true;
                 return false;
 
@@ -139,7 +145,7 @@ namespace nodes
             {
                 if (lines.leftFront.iQ < (lines.leftBack.iQ + interval) && lines.leftFront.iQ > (lines.leftBack.iQ - interval))
                 {
-                    std::cout << "lol" << std::endl;
+                    //std::cout << "lol" << std::endl;
                     return true;
                 }
                 return false;
@@ -181,10 +187,19 @@ namespace nodes
                 results.right = 0;
 
             lines = filtr.line_aprox(msg->ranges, msg->angle_min, msg->angle_max);
-            std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
-            std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
+            //std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
+            //std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
             //std::cout << "Leva zadni " << "y=" << lines.leftBack.iK << "x + " << lines.leftBack.iQ << std::endl;
             //std::cout << "Prava zadni " << "y=" << lines.rightBack.iK << "x + " << lines.rightBack.iQ << std::endl;
+            //std::cout << "Predni " << "y=" << lines.front.iK << "x + " << lines.front.iQ << std::endl;
+            //std::cout << "Zadni " << "y=" << lines.back.iK << "x + " << lines.back.iQ << std::endl;
+            //std::cout << "Leva " << "y=" << lines.centerLeft.iK << "x + " << lines.centerLeft.iQ << std::endl;
+            //std::cout << "Prava " << "y=" << lines.centerRight.iK << "x + " << lines.centerRight.iQ << std::endl;
+
+            if (valid_line(leftFront))
+                std::cout << "Leva valid" << std::endl;
+            if (valid_line(rightFront))
+                std::cout << "Prava valid" << std::endl;
             }
 
 

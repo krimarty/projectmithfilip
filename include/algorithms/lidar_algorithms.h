@@ -27,8 +27,12 @@ namespace algorithms {
     struct LidarLines {
         line leftFront;
         line rightFront;
+        line centerLeft;
         line leftBack;
         line rightBack;
+        line centerRight;
+        line front;
+        line back;
     };
 
     struct Point2D {
@@ -64,12 +68,13 @@ namespace algorithms {
 
         LidarLines line_aprox(std::vector<float> points, float angle_start, float angle_end)
         {
-            std::vector<Point2D> leftFront, rightFront, leftBack, rightBack;
+            std::vector<Point2D> leftFront, rightFront, leftBack, rightBack, centerLeft, centerRight, front, back;
 
             auto angle_step = (angle_end - angle_start) / points.size();
 
             constexpr float bigAngle = 1.107148718;
             constexpr float smallAngle = 0.6747409422;
+            constexpr float frontAngle = 0.358770673;
 
             for (size_t i = 0; i < points.size(); ++i) {
                 auto angle = angle_start + i * angle_step;
@@ -85,17 +90,25 @@ namespace algorithms {
 
                 // Dělení na sektory – jednoduché rozdělení podle kvadrantů
                 if (angle > M_PI-bigAngle && angle < M_PI-smallAngle) rightFront.push_back({x, y});
-                else if (angle > (-M_PI+smallAngle) && angle < (-M_PI+bigAngle) ) leftFront.push_back({x, y});
-                else if (angle < 0-smallAngle && angle > 0-bigAngle) leftBack.push_back({x, y});
-                else if (angle > 0+smallAngle && angle < 0+bigAngle) rightBack.push_back({x, y});
+                if (angle > (-M_PI+smallAngle) && angle < (-M_PI+bigAngle) ) leftFront.push_back({x, y});
+                if (angle < 0-smallAngle && angle > 0-bigAngle) leftBack.push_back({x, y});
+                if (angle > 0+smallAngle && angle < 0+bigAngle) rightBack.push_back({x, y});
+                if (angle > M_PI-frontAngle || angle < -M_PI+frontAngle) front.push_back({x, y});
+                if (angle < frontAngle && angle > -frontAngle) back.push_back({x, y});
+                if (angle > -(M_PI/2)-frontAngle && angle < -(M_PI/2)+frontAngle) centerLeft.push_back({x, y});
+                if (angle < (M_PI/2)+frontAngle && angle > (M_PI/2)-frontAngle) centerRight.push_back({x, y});
 
             }
 
             return {
                 .leftFront = fitLineLeastSquares(leftFront),
                 .rightFront = fitLineLeastSquares(rightFront),
+                .centerLeft = fitLineLeastSquares(centerLeft),
                 .leftBack = fitLineLeastSquares(leftBack),
-                .rightBack = fitLineLeastSquares(rightBack)
+                .rightBack = fitLineLeastSquares(rightBack),
+                .centerRight = fitLineLeastSquares(centerRight),
+                .front = fitLineLeastSquares(front),
+                .back = fitLineLeastSquares(back)
             };
         }
 

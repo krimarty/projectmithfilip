@@ -27,6 +27,7 @@ set(SRC
         src/nodes/imu_node.cpp
         src/nodes/coridor_node.cpp
         src/nodes/camera_node.cpp
+        src/nodes/maze_node.cpp
 )
 
 set(AMENT_LIBS rclcpp std_msgs sensor_msgs cv_bridge image_transport)

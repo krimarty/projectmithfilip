@@ -2,8 +2,8 @@
 // Created by martin on 16.04.25.
 //
 
-#ifndef CORIDOR_NODE_H
-#define CORIDOR_NODE_H
+#ifndef MAZE_NODE_H
+#define MAZE_NODE_H
 
 #include <rclcpp/rclcpp.hpp>
 #include "algorithms/pid.h"
@@ -13,36 +13,20 @@
 #include "nodes/motor_node.h"
 #include "nodes/io_node.h"
 #include "nodes/camera_node.h"
+#include "nodes/coridor_node.h"
 
 
 namespace nodes {
 
-    enum states
-    {
-        calibration,
-        corridor_following,
-        center,
-        turningLeft,
-        turningRight,
-    };
-
-    enum turning_states
-    {
-        moveToTargetAhead,
-        turning,
-        resetImu,
-        finished,
-    };
-
-    class CorridorNode : public rclcpp::Node {
+    class MazeNode : public rclcpp::Node {
     public:
         // Constructor
-        CorridorNode();
+        MazeNode();
         // Destructor (default)
-        ~CorridorNode() override = default;
+        ~MazeNode() override = default;
 
 
-        void corridor_routine();
+        void maze_routine();
 
         void state_calibration();
         void state_corridor();
@@ -76,4 +60,4 @@ namespace nodes {
 
 }
 
-#endif //CORIDOR_NODE_H
+#endif //MAZE_NODE_H
