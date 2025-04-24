@@ -72,6 +72,7 @@ namespace nodes {
         mode line = mode::leftFront;
 
     };
+
 }
 
 #endif //CORIDOR_NODE_H
