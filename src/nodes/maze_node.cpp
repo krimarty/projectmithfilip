@@ -39,6 +39,13 @@ namespace nodes{
             io_class->publish_message(0);
         else if (tmp == straightCorridor)
             io_class->publish_message(3);
+        else if (tmp == T)
+            io_class->publish_message(5);
+        else if (tmp == TLeft)
+            io_class->publish_message(6);
+        else if (tmp == TRight)
+            io_class->publish_message(7);
+
         //////////////////////////////
 
         line_select();

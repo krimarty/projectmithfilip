@@ -72,8 +72,10 @@ namespace algorithms {
 
             auto angle_step = (angle_end - angle_start) / points.size();
 
-            constexpr float bigAngle = 1.107148718;
-            constexpr float smallAngle = 0.6747409422;
+            //constexpr float bigAngle = 1.107148718;
+            constexpr float bigAngle = 0.7853981634;
+            //constexpr float smallAngle = 0.6747409422;
+            constexpr float smallAngle = 0.5191461142;
             constexpr float frontAngle = 0.358770673;
 
             for (size_t i = 0; i < points.size(); ++i) {

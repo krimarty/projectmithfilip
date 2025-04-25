@@ -15,7 +15,9 @@ namespace nodes
     enum mode
     {
         leftFront,
+        leftCenter,
         rightFront,
+        rightCenter,
         leftBack,
         rightBack,
         left,
@@ -29,6 +31,17 @@ namespace nodes
         middleX,
         blindEnd,
         straightCorridor,
+        T,
+        TLeft,
+        TRight,
+    };
+
+    enum lineReliable
+    {
+        reliable,
+        toofar,
+        notparallel,
+        unreliable,
     };
 
     class LidarNode : public rclcpp::Node {
@@ -88,53 +101,121 @@ namespace nodes
             return 0;
         }
 
-        bool valid_line(const mode mode) const
+        lineReliable valid_line(const mode mode) const
         {
-            constexpr float maxDistance = 0.4;
+            constexpr float maxDistance = 0.35;
             constexpr float maxK = 0.4;
             switch (mode)
             {
                 case leftFront:
-                    //if (lines.leftFront.iQ < maxDistance)
-                    if (lines.leftFront.iK > -maxK && lines.leftFront.iK < maxK && lines.rightFront.iQ < maxDistance)
-                        return true;
-                    return false;
+                    if (lines.leftFront.iK > -maxK && lines.leftFront.iK < maxK )
+                    {
+                        if (lines.leftFront.iQ > -maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.leftFront.iQ > -maxDistance)
+                        return notparallel;
+                    return unreliable;
 
                 case leftBack:
-                    //if (lines.leftBack.iQ < maxDistance)
                     if (lines.leftBack.iK > -maxK && lines.leftBack.iK < maxK )
-                        return true;
-                return false;
+                    {
+                        if (lines.leftBack.iQ > -maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.leftFront.iQ > -maxDistance)
+                        return notparallel;
+                    return unreliable;
 
                 case rightFront:
-                    //if (lines.rightFront.iQ < maxDistance)
-                    if (lines.rightFront.iK > -maxK && lines.rightFront.iK < maxK && lines.rightFront.iQ < maxDistance )
-                        return true;
-                return false;
+                    if (lines.rightFront.iK > -maxK && lines.rightFront.iK < maxK )
+                    {
+                        if (lines.rightFront.iQ < maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.rightFront.iQ < maxDistance)
+                        return notparallel;
+                    return unreliable;
 
                 case rightBack:
-                    //if (lines.rightBack.iQ < maxDistance)
                     if (lines.rightBack.iK > -maxK && lines.rightBack.iK < maxK )
-                        return true;
-                return false;
+                    {
+                        if (lines.rightBack.iQ < maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.rightBack.iQ < maxDistance)
+                        return notparallel;
+                    return unreliable;
+
+                case leftCenter:
+                    if (lines.centerLeft.iK > -maxK && lines.centerLeft.iK < maxK )
+                    {
+                        if (lines.centerLeft.iQ > -maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.centerLeft.iQ > -maxDistance)
+                        return notparallel;
+                    return unreliable;
+
+                case rightCenter:
+                    if (lines.centerRight.iK > -maxK && lines.centerRight.iK < maxK )
+                    {
+                        if (lines.centerRight.iQ < maxDistance)
+                            return reliable;
+                        return toofar;
+                    }
+                    if (lines.centerRight.iQ < maxDistance)
+                        return notparallel;
+                    return unreliable;
+                default: ;
             }
-            return false;
+            return unreliable;
         }
 
         intersectionType get_interseptionType() const
         {
-            if (results.front < 0.50) // Prekazka pred robotem
+            constexpr float frontBarrier = 0.7;
+            constexpr float TBarrier = 0.5;
+            if (results.front < frontBarrier)
             {
-                if (valid_line(leftFront) && valid_line(rightFront))
-                    return middleX;
-                if (valid_line(leftFront))
+                if (valid_line(leftFront) == nodes::lineReliable::reliable && valid_line(rightFront) == nodes::lineReliable::reliable)
+                {
+                    if (results.front > TBarrier)
+                        return blindEnd;
+                }
+                if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) != nodes::lineReliable::reliable)
+                    return T;
+                if (valid_line(leftFront) == nodes::lineReliable::reliable)
                     return rightTurn;
-                if (valid_line(rightFront))
+                if (valid_line(rightFront) == nodes::lineReliable::reliable)
                     return leftTurn;
+            }
+            if (valid_line(leftFront) == nodes::lineReliable::reliable && valid_line(rightFront) == nodes::lineReliable::reliable)
+            {
                 return straightCorridor;
             }
-            if (!valid_line(leftFront) && !valid_line(rightFront))
+            if (valid_line(leftFront) == nodes::lineReliable::reliable && valid_line(rightFront) != nodes::lineReliable::reliable)
+            {
+                if (results.front < TBarrier)
+                    return straightCorridor;
+                return TRight;
+            }
+            if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) == nodes::lineReliable::reliable)
+            {
+                if (results.front < TBarrier)
+                    return straightCorridor;
+                return TLeft;
+            }
+            if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) != nodes::lineReliable::reliable)
+            {
                 return middleX;
+            }
+
             return straightCorridor;
         }
 
@@ -187,8 +268,8 @@ namespace nodes
                 results.right = 0;
 
             lines = filtr.line_aprox(msg->ranges, msg->angle_min, msg->angle_max);
-            //std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
-            //std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
+            std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
+            std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
             //std::cout << "Leva zadni " << "y=" << lines.leftBack.iK << "x + " << lines.leftBack.iQ << std::endl;
             //std::cout << "Prava zadni " << "y=" << lines.rightBack.iK << "x + " << lines.rightBack.iQ << std::endl;
             //std::cout << "Predni " << "y=" << lines.front.iK << "x + " << lines.front.iQ << std::endl;
@@ -196,10 +277,10 @@ namespace nodes
             //std::cout << "Leva " << "y=" << lines.centerLeft.iK << "x + " << lines.centerLeft.iQ << std::endl;
             //std::cout << "Prava " << "y=" << lines.centerRight.iK << "x + " << lines.centerRight.iQ << std::endl;
 
-            if (valid_line(leftFront))
-                std::cout << "Leva valid" << std::endl;
-            if (valid_line(rightFront))
-                std::cout << "Prava valid" << std::endl;
+            //if (valid_line(leftFront))
+                //std::cout << "Leva valid" << std::endl;
+            //if (valid_line(rightFront))
+                //std::cout << "Prava valid" << std::endl;
             }
 
 
