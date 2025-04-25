@@ -22,6 +22,8 @@ namespace nodes
         rightBack,
         left,
         right,
+        corridorRight,
+        corridorLeft,
     };
 
     enum intersectionType
@@ -67,6 +69,10 @@ namespace nodes
                 return  setPoint - lines.rightFront.iQ;
             if (mode == rightBack)
                 return  setPoint - lines.rightBack.iQ;
+            if (mode == corridorRight)
+                return  setPoint - lines.corridorRight.iQ;
+            if (mode == corridorLeft)
+                return  -(setPoint + lines.corridorLeft.iQ);
             return 0;
         }
 
@@ -84,19 +90,23 @@ namespace nodes
                 return  lines.centerRight.iK;
             if (mode == left)
                 return  lines.centerLeft.iK;
+            if (mode == corridorRight)
+                return  lines.corridorRight.iK;
+            if (mode == corridorLeft)
+                return  lines.corridorLeft.iK;
             return 0;
         }
 
         float from_centre() const
         {
             constexpr float setPoint = 0.2;
-            if (valid_line(leftFront))
+            if (valid_line(leftFront) == nodes::lineReliable::reliable)
                 return abs(setPoint+lines.leftFront.iQ);
-            if (valid_line(leftBack))
+            if (valid_line(leftBack) == nodes::lineReliable::reliable)
                 return abs(setPoint+lines.leftBack.iQ);
-            if (valid_line(rightFront))
+            if (valid_line(rightFront) == nodes::lineReliable::reliable)
                 return abs(setPoint-lines.rightFront.iQ);
-            if (valid_line(rightBack))
+            if (valid_line(rightBack) == nodes::lineReliable::reliable)
                 return abs(setPoint-lines.rightBack.iQ);
             return 0;
         }
@@ -179,14 +189,14 @@ namespace nodes
 
         intersectionType get_interseptionType() const
         {
-            constexpr float frontBarrier = 0.7;
-            constexpr float TBarrier = 0.5;
+            constexpr float frontBarrier = 0.6;
+            constexpr float weAreClear = 0.7;
+            constexpr float TBarrier = 0.7;
             if (results.front < frontBarrier)
             {
                 if (valid_line(leftFront) == nodes::lineReliable::reliable && valid_line(rightFront) == nodes::lineReliable::reliable)
                 {
-                    if (results.front > TBarrier)
-                        return blindEnd;
+                    return blindEnd;
                 }
                 if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) != nodes::lineReliable::reliable)
                     return T;
@@ -203,17 +213,18 @@ namespace nodes
             {
                 if (results.front < TBarrier)
                     return straightCorridor;
-                return TRight;
+                return middleX; //TRight
             }
             if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) == nodes::lineReliable::reliable)
             {
                 if (results.front < TBarrier)
                     return straightCorridor;
-                return TLeft;
+                return middleX; //TLeft
             }
             if (valid_line(leftFront) != nodes::lineReliable::reliable && valid_line(rightFront) != nodes::lineReliable::reliable)
             {
-                return middleX;
+                if (results.front > weAreClear)
+                    return middleX;
             }
 
             return straightCorridor;
@@ -249,9 +260,17 @@ namespace nodes
             return results.front;
         }
 
+        intersectionType get_intersection() const
+        {
+            return lastIntersection;
+        }
+
 
     private:
         algorithms::LidarFiltr filtr;
+
+        nodes::intersectionType lastIntersection = nodes::intersectionType::straightCorridor;
+        int intersectionCouter = 0;
 
         algorithms::LidarFiltrResults results{};
         algorithms::LidarLines lines{};
@@ -268,19 +287,33 @@ namespace nodes
                 results.right = 0;
 
             lines = filtr.line_aprox(msg->ranges, msg->angle_min, msg->angle_max);
-            std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
-            std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
+            //std::cout << "Leva predni " << "y=" << lines.leftFront.iK << "x + " << lines.leftFront.iQ << std::endl;
+            //std::cout << "Prava predni " << "y=" << lines.rightFront.iK << "x + " << lines.rightFront.iQ << std::endl;
             //std::cout << "Leva zadni " << "y=" << lines.leftBack.iK << "x + " << lines.leftBack.iQ << std::endl;
             //std::cout << "Prava zadni " << "y=" << lines.rightBack.iK << "x + " << lines.rightBack.iQ << std::endl;
             //std::cout << "Predni " << "y=" << lines.front.iK << "x + " << lines.front.iQ << std::endl;
             //std::cout << "Zadni " << "y=" << lines.back.iK << "x + " << lines.back.iQ << std::endl;
             //std::cout << "Leva " << "y=" << lines.centerLeft.iK << "x + " << lines.centerLeft.iQ << std::endl;
             //std::cout << "Prava " << "y=" << lines.centerRight.iK << "x + " << lines.centerRight.iQ << std::endl;
+            //std::cout << "Leva coridor " << "y=" << lines.corridorLeft.iK << "x + " << lines.corridorLeft.iQ << std::endl;
+            //std::cout << "Prava coridor " << "y=" << lines.corridorRight.iK << "x + " << lines.corridorRight.iQ << std::endl;
+
 
             //if (valid_line(leftFront))
                 //std::cout << "Leva valid" << std::endl;
             //if (valid_line(rightFront))
                 //std::cout << "Prava valid" << std::endl;
+            nodes::intersectionType tmp = get_interseptionType();
+
+            if (tmp != lastIntersection)
+            {
+                if (intersectionCouter > 3)
+                {
+                    lastIntersection = tmp;
+                    intersectionCouter = 0;
+                }
+                intersectionCouter++;
+            }
             }
 
 

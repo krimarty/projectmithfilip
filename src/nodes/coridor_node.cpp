@@ -206,12 +206,12 @@ namespace nodes{
 
     void CorridorNode::line_select() {
         if (std::abs(lidar_class->get_error_angle(line)) > 0.3) {
-            if (line == leftFront) {
-                line = rightFront;
+            if (line == corridorLeft) {
+                line = corridorRight;
                 //std::cout << "prava strana " << std::endl;
             }
             else {
-                line = leftFront;
+                line = corridorLeft;
                 //std::cout << "leva strana " << std::endl;
             }
         }

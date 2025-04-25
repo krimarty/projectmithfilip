@@ -33,6 +33,8 @@ namespace algorithms {
         line centerRight;
         line front;
         line back;
+        line corridorLeft;
+        line corridorRight;
     };
 
     struct Point2D {
@@ -68,13 +70,15 @@ namespace algorithms {
 
         LidarLines line_aprox(std::vector<float> points, float angle_start, float angle_end)
         {
-            std::vector<Point2D> leftFront, rightFront, leftBack, rightBack, centerLeft, centerRight, front, back;
+            std::vector<Point2D> leftFront, rightFront, leftBack, rightBack, centerLeft, centerRight, front, back, corridorLeft, corridorRight;
 
             auto angle_step = (angle_end - angle_start) / points.size();
 
-            //constexpr float bigAngle = 1.107148718;
+            //kouka bliz
+            constexpr float bigAnglecorridor = 1.107148718;
+            constexpr float smallAnglecorridor = 0.6747409422;
+            //kouka dal
             constexpr float bigAngle = 0.7853981634;
-            //constexpr float smallAngle = 0.6747409422;
             constexpr float smallAngle = 0.5191461142;
             constexpr float frontAngle = 0.358770673;
 
@@ -100,6 +104,10 @@ namespace algorithms {
                 if (angle > -(M_PI/2)-frontAngle && angle < -(M_PI/2)+frontAngle) centerLeft.push_back({x, y});
                 if (angle < (M_PI/2)+frontAngle && angle > (M_PI/2)-frontAngle) centerRight.push_back({x, y});
 
+                if (angle > M_PI-bigAnglecorridor && angle < M_PI-smallAnglecorridor) corridorRight.push_back({x, y});
+                if (angle > (-M_PI+smallAnglecorridor) && angle < (-M_PI+bigAnglecorridor) ) corridorLeft.push_back({x, y});
+
+
             }
 
             return {
@@ -110,7 +118,10 @@ namespace algorithms {
                 .rightBack = fitLineLeastSquares(rightBack),
                 .centerRight = fitLineLeastSquares(centerRight),
                 .front = fitLineLeastSquares(front),
-                .back = fitLineLeastSquares(back)
+                .back = fitLineLeastSquares(back),
+                .corridorLeft = fitLineLeastSquares(corridorLeft),
+                .corridorRight = fitLineLeastSquares(corridorRight)
+
             };
         }
 

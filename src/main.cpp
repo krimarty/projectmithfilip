@@ -1,6 +1,5 @@
 #include <nodes/lidar_node.h>
 #include <rclcpp/rclcpp.hpp>
-#include "nodes/encoder_node.h"
 #include "nodes/joystick_node.h"
 #include "nodes/line_node.h"
 #include "algorithms/pid.h"
@@ -17,7 +16,6 @@ int main(int argc, char* argv[])
     // Create instances of RosExampleClass using the existing nodes
     auto joystick_class = std::make_shared<nodes::JoystickNode>();
 
-    auto encoder_class = std::make_shared<nodes::EncoderNode>();
     auto line_class = std::make_shared<nodes::LineNode>();
 
     auto coridor_class = std::make_shared<nodes::CorridorNode>();
@@ -26,7 +24,6 @@ int main(int argc, char* argv[])
 
     // Add nodes to the executor
     executor->add_node(joystick_class);
-    executor->add_node(encoder_class);
     executor->add_node(line_class);
 
     executor->add_node(coridor_class);
@@ -36,12 +33,14 @@ int main(int argc, char* argv[])
     executor->add_node(coridor_class->io_class);
     executor->add_node(coridor_class->camera_class);
 
+
     executor->add_node(maze_class);
     executor->add_node(maze_class->imu_class);
     executor->add_node(maze_class->lidar_class);
     executor->add_node(maze_class->motor_class);
     executor->add_node(maze_class->io_class);
     executor->add_node(maze_class->camera_class);
+    executor->add_node(maze_class->encoder_class);
 
 
     // Run the executor (handles callbacks for both nodes)

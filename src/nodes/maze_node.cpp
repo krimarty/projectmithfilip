@@ -23,12 +23,13 @@ namespace nodes{
         motor_class = std::make_shared<nodes::MotorNode>();
         lidar_class = std::make_shared<nodes::LidarNode>();
         io_class = std::make_shared<nodes::IoNode>();
+        encoder_class = std::make_shared<nodes::EncoderNode>();
     }
 
     void MazeNode::maze_routine()
     {
         //////////////////////////////
-        intersectionType tmp = lidar_class->get_interseptionType();
+        intersectionType tmp = lidar_class->get_intersection();
         if (tmp == middleX)
             io_class->publish_message(4);
         else if (tmp == leftTurn)
@@ -45,10 +46,11 @@ namespace nodes{
             io_class->publish_message(6);
         else if (tmp == TRight)
             io_class->publish_message(7);
-
         //////////////////////////////
 
         line_select();
+        update_coordinates();
+        std::cout << "x: " << coordinates.x << " y: " << coordinates.y << std::endl;
 
         current_state = next_state(current_state);
 
@@ -71,7 +73,8 @@ namespace nodes{
                 break;
 
             case states::center:
-                state_center();
+                //state_center();
+                intersection_handle();
                 break;
 
             default:
@@ -84,7 +87,7 @@ namespace nodes{
 
     states MazeNode::next_state(const states currentState)
     {
-        intersectionType tmp = lidar_class->get_interseptionType();
+        intersectionType tmp = lidar_class->get_intersection();
         if (currentState == states::calibration)
         {
             if (imu_class->calibrated_)
@@ -115,14 +118,17 @@ namespace nodes{
             return states::turningRight;
         }
         else if (currentState == states::center) {
-            if (tmp == straightCorridor)
+            if (current_intersection_state == intersectionFinished)
                 return states::corridor_following;
             return states::center;
         }
         return states::calibration;
     }
 
-    void MazeNode::state_calibration() {}
+    void MazeNode::state_calibration()
+    {
+        reset_coordinates();
+    }
 
     void MazeNode::state_corridor()
     {
@@ -229,14 +235,57 @@ namespace nodes{
         robot_speed.v = 0.1;
     }
 
+    void MazeNode::intersection_handle()
+    {
+        switch (current_intersection_state)
+        {
+        case intersectionStates::resetCoordinates:
+            reset_coordinates();
+            current_intersection_state = intersectionStates::goToCentre;
+            break;
+
+        case intersectionStates::goToCentre:
+            robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
+            robot_speed.v = pid_moveToTargetAhead.step( 0.43 - coordinates.x, 0.01);
+            if (coordinates.x > 0.4)
+                current_intersection_state = intersectionStates::spin;
+            break;
+
+        case intersectionStates::spin:
+            robot_speed.v = 0;
+            //call function where to go
+            int where = 1;
+            switch (where)
+            {
+                case 0:
+                    robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() + M_PI/2, 0.01); //left
+                    if (imu_class->planar_integrator_.getYaw() > -M_PI/2 - 0.0698131701 && imu_class->planar_integrator_.getYaw() < -M_PI/2 + 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                        current_intersection_state = intersectionStates::ImuReset;
+                    break;
+                case 1:
+                    robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI/2, 0.01); //right
+                    if (imu_class->planar_integrator_.getYaw() < M_PI/2 + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI/2 - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                        current_intersection_state = intersectionStates::ImuReset;
+                    break;
+                case 2:
+                    current_intersection_state = intersectionStates::ImuReset; //straight
+                    break;
+
+            }
+            robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI/2, 0.01);
+            if (imu_class->planar_integrator_.getYaw() < M_PI/2 + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI/2 - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+            break;
+        }
+    }
+
     void MazeNode::line_select() {
         if (std::abs(lidar_class->get_error_angle(line)) > 0.3) {
-            if (line == leftFront) {
-                line = rightFront;
+            if (line == corridorLeft) {
+                line = corridorRight;
                 //std::cout << "prava strana " << std::endl;
             }
             else {
-                line = leftFront;
+                line = corridorLeft;
                 //std::cout << "leva strana " << std::endl;
             }
         }
