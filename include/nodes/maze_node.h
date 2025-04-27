@@ -14,18 +14,39 @@
 #include "nodes/encoder_node.h"
 #include "nodes/io_node.h"
 #include "nodes/camera_node.h"
-#include "nodes/coridor_node.h"
 
 
 namespace nodes {
+
+    enum states
+    {
+        calibration,
+        corridorFollowing,
+        intersection,
+        turning,
+        resetImu
+    };
+
+    enum turningStates
+    {
+        moveToTargetAhead,
+        turnings,
+        turningFinished,
+    };
 
     enum intersectionStates
     {
         resetCoordinates,
         goToCentre,
         spin,
-        ImuReset,
         intersectionFinished,
+    };
+
+    enum imuStates
+    {
+        getLine,
+        centre,
+        ImuFinished,
     };
 
     class MazeNode : public rclcpp::Node {
@@ -40,10 +61,9 @@ namespace nodes {
 
         void state_calibration();
         void state_corridor();
-        void state_left();
-        void state_right();
-        void state_center();
-        void intersection_handle();
+        void state_turning();
+        void state_resetImu();
+        void state_intersection();
 
         void update_coordinates()
         {
@@ -76,8 +96,12 @@ namespace nodes {
 
     private:
         states current_state = states::calibration;
-        turning_states current_turning_state = turning_states::moveToTargetAhead;
+        turningStates current_turning_state = turningStates::moveToTargetAhead;
         intersectionStates current_intersection_state = intersectionStates::resetCoordinates;
+        imuStates current_imu_state = imuStates::getLine;
+
+        algorithms::spin turning_spin_;
+        algorithms::spin intersection_spin_;
 
         algorithms::Pid pid_coridor_center;
         algorithms::Pid pid_coridor_angle;
@@ -89,11 +113,13 @@ namespace nodes {
         Encoders old_encoders{0};
         Encoders new_encoders{0};
         Coordinates coordinates{};
-        //.l = encoder_class->get_left_value(), .r = encoder_class->get_right_value(),
         states next_state(states currentState);
         void line_select();
+        void line_parallel_select();
 
-        mode line = mode::leftFront;
+
+        mode line_toFollow = mode::leftFront;
+        mode line_toCentre = mode::rightFront;
 
     };
 

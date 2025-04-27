@@ -25,7 +25,6 @@ set(SRC
         src/nodes/line_node.cpp
         src/nodes/lidar_node.cpp
         src/nodes/imu_node.cpp
-        src/nodes/coridor_node.cpp
         src/nodes/camera_node.cpp
         src/nodes/maze_node.cpp
 )

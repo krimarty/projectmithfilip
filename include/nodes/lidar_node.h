@@ -46,6 +46,13 @@ namespace nodes
         unreliable,
     };
 
+    struct freeCorridor
+    {
+        bool front;
+        bool right;
+        bool left;
+    };
+
     class LidarNode : public rclcpp::Node {
     public:
 
@@ -263,6 +270,20 @@ namespace nodes
         intersectionType get_intersection() const
         {
             return lastIntersection;
+        }
+
+        freeCorridor intersection_scan() const
+        {
+            constexpr float distance = 0.3;
+            freeCorridor tmp{.front = false, .right = false, .left = false};
+            if (results.front > distance)
+                tmp.front = true;
+            if (results.right > distance)
+                tmp.right = true;
+            if (results.left > distance)
+                tmp.left = true;
+
+            return tmp;
         }
 
 

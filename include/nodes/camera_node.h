@@ -24,11 +24,12 @@ namespace nodes {
         CameraNode();
         // Destructor (default)
         ~CameraNode() override = default;
+        algorithms::ArucoDetector aruco_detector;
+
     private:
         void on_image_msg(const sensor_msgs::msg::Image::ConstSharedPtr& msg);
 
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subscriber_;
-        algorithms::ArucoDetector aruco_detector;
     };
 }
 #endif //CAMERA_NODE_H

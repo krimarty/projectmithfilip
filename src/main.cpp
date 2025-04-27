@@ -3,7 +3,6 @@
 #include "nodes/joystick_node.h"
 #include "nodes/line_node.h"
 #include "algorithms/pid.h"
-#include "nodes/coridor_node.h"
 #include "nodes/maze_node.h"
 
 int main(int argc, char* argv[])
@@ -18,7 +17,6 @@ int main(int argc, char* argv[])
 
     auto line_class = std::make_shared<nodes::LineNode>();
 
-    auto coridor_class = std::make_shared<nodes::CorridorNode>();
 
     auto maze_class = std::make_shared<nodes::MazeNode>();
 
@@ -26,12 +24,6 @@ int main(int argc, char* argv[])
     executor->add_node(joystick_class);
     executor->add_node(line_class);
 
-    executor->add_node(coridor_class);
-    executor->add_node(coridor_class->imu_class);
-    executor->add_node(coridor_class->lidar_class);
-    executor->add_node(coridor_class->motor_class);
-    executor->add_node(coridor_class->io_class);
-    executor->add_node(coridor_class->camera_class);
 
 
     executor->add_node(maze_class);

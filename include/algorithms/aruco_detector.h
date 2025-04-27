@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/aruco.hpp>
 #include <iostream>
+#include <algorithms/spin_planner.h>
 
 namespace algorithms {
 
@@ -40,6 +41,7 @@ namespace algorithms {
                     aruco.id = marker_ids[i];
                     aruco.corners = marker_corners[i];
                     arucos.emplace_back(aruco);
+                    spin_planner_.set_tag(aruco.id);
                 }
                 std::cout << std::endl;
             }
@@ -61,6 +63,7 @@ namespace algorithms {
             return last_detection_;
         }
 
+        SpinPlanner spin_planner_;
     private:
         cv::Ptr<cv::aruco::Dictionary> dictionary_;
 
