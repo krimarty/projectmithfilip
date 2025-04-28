@@ -31,7 +31,6 @@ int main(int argc, char* argv[])
     executor->add_node(coridor_class->lidar_class);
     executor->add_node(coridor_class->motor_class);
     executor->add_node(coridor_class->io_class);
-    executor->add_node(coridor_class->camera_class);
 
 
     // Run the executor (handles callbacks for both nodes)

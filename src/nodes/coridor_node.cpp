@@ -18,7 +18,6 @@ namespace nodes{
 
 
     {
-        camera_class = std::make_shared<nodes::CameraNode>();
         imu_class = std::make_shared<nodes::ImuNode>();
         motor_class = std::make_shared<nodes::MotorNode>();
         lidar_class = std::make_shared<nodes::LidarNode>();
@@ -96,6 +95,7 @@ namespace nodes{
         else if (currentState == states::turningLeft) {
             if (current_turning_state == finished) {
                 current_turning_state = moveToTargetAhead;
+                imu_class->planar_integrator_.reset();//
                 return states::corridor_following;
             }
             return states::turningLeft;
@@ -103,6 +103,7 @@ namespace nodes{
         else if (currentState == states::turningRight) {
             if (current_turning_state == finished) {
                 current_turning_state = moveToTargetAhead;
+                imu_class->planar_integrator_.reset();
                 return states::corridor_following;
             }
             return states::turningRight;

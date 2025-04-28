@@ -12,7 +12,6 @@
 #include <nodes/lidar_node.h>
 #include "nodes/motor_node.h"
 #include "nodes/io_node.h"
-#include "nodes/camera_node.h"
 
 
 namespace nodes {
@@ -53,7 +52,6 @@ namespace nodes {
         std::shared_ptr<nodes::ImuNode> imu_class;
         std::shared_ptr<nodes::MotorNode> motor_class;
         std::shared_ptr<nodes::IoNode> io_class;
-        std::shared_ptr<nodes::CameraNode> camera_class;
 
     private:
         states current_state = states::calibration;
