@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 
 
     auto maze_class = std::make_shared<nodes::MazeNode>();
+    auto imu = std::make_shared<nodes::ImuNode>();
 
     // Add nodes to the executor
     executor->add_node(joystick_class);
@@ -27,13 +28,14 @@ int main(int argc, char* argv[])
 
 
     executor->add_node(maze_class);
-    executor->add_node(maze_class->imu_class);
+    /*executor->add_node(imu);
+    //executor->add_node(maze_class->imu_class);
     executor->add_node(maze_class->lidar_class);
     executor->add_node(maze_class->motor_class);
     executor->add_node(maze_class->io_class);
     executor->add_node(maze_class->camera_class);
     executor->add_node(maze_class->encoder_class);
-
+*/
 
     // Run the executor (handles callbacks for both nodes)
     auto executor_thread = std::thread([&executor]() { executor->spin(); });

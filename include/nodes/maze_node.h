@@ -70,7 +70,7 @@ namespace nodes {
         {
             new_encoders.l = encoder_class->get_left_value() - old_encoders.l;
             new_encoders.r = encoder_class->get_right_value() - old_encoders.r;
-            old_encoders.l = encoder_class->get_left_value();
+            old_encoders.l = //encoder_class->get_left_value();
             old_encoders.r = encoder_class->get_right_value();
 
             Coordinates tmp = algorithms::KinematicsAlgorithms::Forward_odometry(new_encoders);
@@ -94,6 +94,7 @@ namespace nodes {
         std::shared_ptr<nodes::MotorNode> motor_class;
         std::shared_ptr<nodes::IoNode> io_class;
         std::shared_ptr<nodes::CameraNode> camera_class;
+
 
     private:
         states current_state = states::calibration;

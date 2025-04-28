@@ -52,6 +52,19 @@ namespace nodes{
         update_coordinates();
         current_state = next_state(current_state);
 
+        if (current_state == states::calibration)
+            std::cout << "calibration" << std::endl;
+        if (current_state == states::intersection)
+            std::cout << "intersection" << std::endl;
+        if (current_state == states::corridorFollowing)
+            std::cout << "corridorFollowing" << std::endl;
+        if (current_state == states::resetImu)
+            std::cout << "resetImu" << std::endl;
+        if (current_state == states::turning)
+            std::cout << "turning" << std::endl;
+
+
+
         switch (current_state)
         {
             case states::calibration:
@@ -236,8 +249,15 @@ namespace nodes{
         case intersectionStates::goToCentre:
             robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
             robot_speed.v = pid_moveToTargetAhead.step( 0.43 - coordinates.x, 0.01);
+            std::cout << coordinates.x << std::endl;
             if (coordinates.x > 0.4){
                 intersection_spin_ = camera_class->aruco_detector.spin_planner_.get_spin(lidar_class->intersection_scan());
+                if (intersection_spin_ == algorithms::left)
+                    std::cout << "left" << std::endl;
+                if (intersection_spin_ == algorithms::right)
+                    std::cout << "right" << std::endl;
+                if (intersection_spin_ == algorithms::straight)
+                    std::cout << "straight" << std::endl;
                 current_intersection_state = intersectionStates::spin;
             }
             break;
