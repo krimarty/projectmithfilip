@@ -31,7 +31,7 @@ namespace nodes {
     {
         moveToTargetAhead,
         turnings,
-        turningFinished,
+        turningFinished
     };
 
     enum intersectionStates
@@ -46,6 +46,7 @@ namespace nodes {
     {
         getLine,
         centre,
+        littleGo,
         ImuFinished,
     };
 

@@ -185,38 +185,42 @@ namespace nodes{
                 current_turning_state = turningStates::turnings;
             break;
 
-        case turningStates::turnings:
-            switch (turning_spin_)
-            {
-                case algorithms::left:
-                    robot_speed.v = 0;
-                    robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() + M_PI/2, 0.01);
-                    if (imu_class->planar_integrator_.getYaw() > -M_PI/2 - 0.0698131701 && imu_class->planar_integrator_.getYaw() < -M_PI/2 + 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
-                        current_turning_state = turningStates::turningFinished;
-                    break;
+            case turningStates::turnings:
+                switch (turning_spin_)
+                {
+                    case algorithms::left:
+                        robot_speed.v = 0;
+                        robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() + M_PI/2, 0.01);
+                        if (imu_class->planar_integrator_.getYaw() > -M_PI/2 - 0.0698131701 && imu_class->planar_integrator_.getYaw() < -M_PI/2 + 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                            current_turning_state = turningStates::turningFinished;
+                        break;
 
-                case algorithms::right:
-                    robot_speed.v = 0;
-                    robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI/2, 0.01);
-                    if (imu_class->planar_integrator_.getYaw() < M_PI/2 + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI/2 - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
-                        current_turning_state = turningStates::turningFinished;
-                    break;
+                    case algorithms::right:
+                        robot_speed.v = 0;
+                        robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI/2, 0.01);
+                        if (imu_class->planar_integrator_.getYaw() < M_PI/2 + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI/2 - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                            current_turning_state = turningStates::turningFinished;
+                        break;
 
-                case algorithms::around:
-                    robot_speed.v = 0;
-                    robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI, 0.01);
-                    if (imu_class->planar_integrator_.getYaw() < M_PI + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                    case algorithms::around:
+                        robot_speed.v = 0;
+                        robot_speed.w = pid_imu.step( imu_class->planar_integrator_.getYaw() - M_PI, 0.01);
+                        if (imu_class->planar_integrator_.getYaw() < M_PI + 0.0698131701 && imu_class->planar_integrator_.getYaw() > M_PI - 0.0698131701 ) // bulharka na urcenni pm 5 stupnu
+                            current_turning_state = turningStates::turningFinished;
+                        break;
+                    default:
                         current_turning_state = turningStates::turningFinished;
-                    break;
-                default: current_turning_state = turningStates::turningFinished;;
-            }
+                        break;
+                }
+                break;
 
         case turningStates::turningFinished:
             robot_speed.w = 0;
             robot_speed.v = 0;
             break;
 
-        default:;
+        default:
+            break;
         }
     }
 
@@ -232,9 +236,10 @@ namespace nodes{
         case intersectionStates::goToCentre:
             robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
             robot_speed.v = pid_moveToTargetAhead.step( 0.43 - coordinates.x, 0.01);
-            if (coordinates.x > 0.4)
+            if (coordinates.x > 0.4){
                 intersection_spin_ = camera_class->aruco_detector.spin_planner_.get_spin(lidar_class->intersection_scan());
                 current_intersection_state = intersectionStates::spin;
+            }
             break;
 
         case intersectionStates::spin:
@@ -270,7 +275,9 @@ namespace nodes{
             current_imu_state = imuStates::centre;
             break;
 
-        case centre:
+    case centre:
+        imu_class->planar_integrator_.reset_imu_angle(lidar_class->get_error_angle(line_toCentre));
+            /*
             robot_speed.v = 0;
             robot_speed.w = pid_coridor_angle.step(lidar_class->get_error_angle(line_toCentre), 0.01);
             if (0.01 > abs(lidar_class->get_error_angle(line_toCentre)))
@@ -278,6 +285,19 @@ namespace nodes{
                 imu_class->planar_integrator_.reset();
                 current_imu_state = imuStates::ImuFinished;
             }
+            */
+        reset_coordinates();
+        current_imu_state = imuStates::littleGo;
+
+
+        case littleGo:
+            //robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
+            robot_speed.w = 0;
+            robot_speed.v = pid_moveToTargetAhead.step( 0.18 - coordinates.x, 0.01);
+            if (coordinates.x > 0.1){
+                current_imu_state = imuStates::ImuFinished;
+            }
+        break;;
 
         case ImuFinished:
             break;
@@ -287,19 +307,19 @@ namespace nodes{
     void MazeNode::line_parallel_select()
     {
         mode tmp = mode::corridorLeft;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::corridorRight))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::corridorRight)))
             tmp = mode::corridorRight;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::left))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::left)))
             tmp = mode::left;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::right))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::right)))
             tmp = mode::right;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::leftBack))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::leftBack)))
             tmp = mode::leftBack;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::rightBack))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::rightBack)))
             tmp = mode::rightBack;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::leftFront))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::leftFront)))
             tmp = mode::leftFront;
-        if (lidar_class->get_error_angle(tmp) > lidar_class->get_error_angle(mode::rightFront))
+        if (std::abs(lidar_class->get_error_angle(tmp)) > std::abs(lidar_class->get_error_angle(mode::rightFront)))
             tmp = mode::rightFront;
 
         line_toCentre = tmp;

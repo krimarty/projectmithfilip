@@ -42,6 +42,11 @@ namespace algorithms {
             theta_ = 0.0f;
         }
 
+        void reset_imu_angle(float k)
+        {
+            theta_ = atan(k)* 180.0 / M_PI;
+        }
+
     private:
         float theta_;       // Integrated yaw angle (radians)
         float gyro_offset_; // Estimated gyro bias

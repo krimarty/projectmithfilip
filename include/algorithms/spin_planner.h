@@ -17,11 +17,11 @@ namespace algorithms
 
     enum spin
     {
+        unknown,
         around,
         left,
         right,
-        straight,
-        unknown
+        straight
     };
 
     class SpinPlanner {
@@ -87,9 +87,9 @@ namespace algorithms
 
 
     private:
-        spin nextEscapeSpin;
-        spin nextTreasureSpin;
-        spin prevSpin;
+        spin nextEscapeSpin = unknown;
+        spin nextTreasureSpin = unknown;
+        spin prevSpin = unknown;
 
         void set_escape_fromTreasure(nodes::freeCorridor corridor_scan)
         {

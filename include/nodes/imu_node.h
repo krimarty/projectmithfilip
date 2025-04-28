@@ -35,6 +35,7 @@ namespace nodes {
         // Reset the class
         void reset_imu();
         algorithms::PlanarImuIntegrator planar_integrator_;
+
         bool calibrated_ = false;
     private:
 
