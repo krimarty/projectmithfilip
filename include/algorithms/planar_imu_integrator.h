@@ -44,7 +44,7 @@ namespace algorithms {
 
         void reset_imu_angle(float k)
         {
-            theta_ = atan(k)* 180.0 / M_PI;
+            theta_ = std::atan(k);
         }
 
     private:

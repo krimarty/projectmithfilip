@@ -4,6 +4,8 @@
 
 #include <algorithms/kinematics_algorithms.h>
 #include <cmath>
+#include <iostream>
+#include <bits/ostream.tcc>
 #define R 0.033
 #define L 0.14
 
@@ -40,8 +42,16 @@ namespace algorithms {
         return out;
     }
 
-    WheelSpeed KinematicsAlgorithms::Inverse_kinematics (const RobotSpeed in)
+    WheelSpeed KinematicsAlgorithms::Inverse_kinematics (RobotSpeed in)
     {
+        if (in.v > 0.1)
+            in.v = 0.1;
+        if (in.v < 0)
+            in.v = 0;
+        if (in.w > 10)
+            in.w = 10;
+        if (in.w < -10)
+            in.w = -10;
         WheelSpeed out{};
         out.r = (2*in.v + in.w*L)/(2*R);
         out.l = (2*in.v - in.w*L)/(2*R);
