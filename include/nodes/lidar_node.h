@@ -286,10 +286,18 @@ namespace nodes
             return tmp;
         }
 
+        bool is_new_cell() const
+        {
+            constexpr float distance = 0.35;
+            if (dif_left > distance || dif_right > distance)
+                return true;
+            return false;
+        }
 
     private:
         algorithms::LidarFiltr filtr;
-
+        float dif_left{};
+        float dif_right{};
         nodes::intersectionType lastIntersection = nodes::intersectionType::straightCorridor;
         int intersectionCouter = 0;
 
@@ -301,7 +309,12 @@ namespace nodes
 
         void lidar_callback(std::shared_ptr<sensor_msgs::msg::LaserScan> msg)
         {
-            results = algorithms::LidarFiltr::apply_filter(msg->ranges, msg->angle_min, msg->angle_max);
+            algorithms::LidarFiltrResults tmp = algorithms::LidarFiltr::apply_filter(msg->ranges, msg->angle_min, msg->angle_max);
+
+            dif_left = tmp.left - results.left;
+            dif_right = tmp.right - results.right;
+
+            results = tmp;
             if (std::isnan(results.left))
                 results.left = 0;
             if (std::isnan(results.right))
@@ -324,13 +337,13 @@ namespace nodes
                 //std::cout << "Leva valid" << std::endl;
             //if (valid_line(rightFront))
                 //std::cout << "Prava valid" << std::endl;
-            nodes::intersectionType tmp = get_interseptionType();
+            nodes::intersectionType tmp1 = get_interseptionType();
 
-            if (tmp != lastIntersection)
+            if (tmp1 != lastIntersection)
             {
                 if (intersectionCouter > 3)
                 {
-                    lastIntersection = tmp;
+                    lastIntersection = tmp1;
                     intersectionCouter = 0;
                 }
                 intersectionCouter++;

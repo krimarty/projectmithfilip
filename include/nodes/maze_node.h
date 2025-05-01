@@ -22,32 +22,14 @@ namespace nodes {
     {
         calibration,
         corridorFollowing,
-        intersection,
-        turning,
-        resetImu
-    };
-
-    enum turningStates
-    {
-        moveToTargetAhead,
-        turnings,
-        turningFinished
-    };
-
-    enum intersectionStates
-    {
+        moveToTarget,
         resetCoordinates,
-        goToCentre,
-        spin,
-        intersectionFinished,
-    };
-
-    enum imuStates
-    {
-        getLine,
-        centre,
+        moveToCenterCoordinates,
+        getSpin,
+        turnLeft,
+        turnRight,
+        around,
         littleGo,
-        ImuFinished,
     };
 
     class MazeNode : public rclcpp::Node {
@@ -62,9 +44,16 @@ namespace nodes {
 
         void state_calibration();
         void state_corridor();
-        void state_turning();
-        void state_resetImu();
-        void state_intersection();
+        void state_moveto_target();
+        void state_reset_coordinates();
+        void state_moveto_center();
+        void state_getSpin();
+        void state_left();
+        void state_right();
+        void state_around();
+        void state_littleGo();
+
+        void reset_imu();
 
         void update_coordinates()
         {
@@ -98,9 +87,6 @@ namespace nodes {
 
     private:
         states current_state = states::calibration;
-        turningStates current_turning_state = turningStates::moveToTargetAhead;
-        intersectionStates current_intersection_state = intersectionStates::resetCoordinates;
-        imuStates current_imu_state = imuStates::getLine;
 
         algorithms::spin turning_spin_;
         algorithms::spin intersection_spin_;
