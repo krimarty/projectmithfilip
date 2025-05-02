@@ -50,28 +50,35 @@ namespace nodes{
 
         line_select();
         update_coordinates();
-        current_state = next_state(current_state);
+        //current_state = next_state(current_state);
+        states tmp_states = next_state(current_state);
 
-        if (current_state == states::calibration)
-            std::cout << "calibration" << std::endl;
-        if (current_state == states::corridorFollowing)
-            std::cout << "corridorFollowing" << std::endl;
-        if (current_state == states::moveToTarget)
-            std::cout << "moveToTarget" << std::endl;
-        if (current_state == states::resetCoordinates)
-            std::cout << "resetCoordinates" << std::endl;
-        if (current_state == states::moveToCenterCoordinates)
-            std::cout << "moveToCenterCoordinates" << std::endl;
-        if (current_state == states::getSpin)
-            std::cout << "getSpin" << std::endl;
-        if (current_state == states::turnLeft)
-            std::cout << "turnLeft" << std::endl;
-        if (current_state == states::turnRight)
-            std::cout << "turnRight" << std::endl;
-        if (current_state == states::around)
-            std::cout << "around" << std::endl;
-        if (current_state == states::littleGo)
-            std::cout << "littleGo" << std::endl;
+        if (tmp_states != current_state)
+        {
+            current_state = tmp_states;
+            if (current_state == states::calibration)
+                std::cout << "calibration" << std::endl;
+            if (current_state == states::corridorFollowing)
+                std::cout << "corridorFollowing" << std::endl;
+            if (current_state == states::moveToTarget)
+                std::cout << "moveToTarget" << std::endl;
+            if (current_state == states::resetCoordinates)
+                std::cout << "resetCoordinates" << std::endl;
+            if (current_state == states::moveToCenterCoordinates)
+                std::cout << "moveToCenterCoordinates" << std::endl;
+            if (current_state == states::getSpin)
+                std::cout << "getSpin" << std::endl;
+            if (current_state == states::turnLeft)
+                std::cout << "turnLeft" << std::endl;
+            if (current_state == states::turnRight)
+                std::cout << "turnRight" << std::endl;
+            if (current_state == states::around)
+                std::cout << "around" << std::endl;
+            if (current_state == states::littleGo)
+                std::cout << "littleGo" << std::endl;
+        }
+        current_state = tmp_states;
+
 
         switch (current_state)
         {
@@ -269,7 +276,7 @@ namespace nodes{
 
     void MazeNode::state_moveto_target()
     {
-        std::cout << "to target: " << lidar_class->from_straight() << std::endl;
+        //std::cout << "to target: " << lidar_class->from_straight() << std::endl;
         robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
         robot_speed.v = pid_moveToTargetAhead.step( lidar_class->from_straight()-0.18, 0.01);
     }
@@ -354,6 +361,7 @@ namespace nodes{
     void MazeNode::reset_imu()
     {
         line_parallel_select();
+        std::cout << "uhel: " <<std::atan(lidar_class->get_error_angle(line_toCentre)*180/M_PI) << std::endl;
         imu_class->planar_integrator_.reset_imu_angle(lidar_class->get_error_angle(line_toCentre));
         reset_coordinates();
     }

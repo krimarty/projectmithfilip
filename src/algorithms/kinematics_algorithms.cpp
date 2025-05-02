@@ -44,8 +44,8 @@ namespace algorithms {
 
     WheelSpeed KinematicsAlgorithms::Inverse_kinematics (RobotSpeed in)
     {
-        if (in.v > 0.05)
-            in.v = 0.05;
+        if (in.v > 0.07)
+            in.v = 0.07;
         if (in.v < 0)
             in.v = 0;
         if (in.w > 10)
