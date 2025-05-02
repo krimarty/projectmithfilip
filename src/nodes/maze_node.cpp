@@ -10,7 +10,7 @@
 namespace nodes{
     MazeNode::MazeNode() : Node("maze_node"),
        pid_coridor_center(2.0, 0.0, 0.4),
-       pid_coridor_angle(1.0, 0.002, 0.2),
+       pid_coridor_angle(1.0, 0.002, 0.1),
        pid_moveToTargetAhead(0.5, 0.002, 0.0),
        pid_imu(1, 0.004, 0.0),
         wheel_speed(),
@@ -137,7 +137,11 @@ namespace nodes{
 
         if (currentState == states::corridorFollowing)
         {
-            if (tmp == middleX) return states::resetCoordinates;
+            if (tmp == middleX)
+            {
+                reset_coordinates();
+                return states::resetCoordinates;
+            }
             if (tmp == leftTurn) return states::moveToTarget;
             if (tmp == rightTurn) return states::moveToTarget;
             if (tmp == blindEnd) return states::moveToTarget;
@@ -147,7 +151,8 @@ namespace nodes{
 
         if (currentState == states::moveToTarget)
         {
-            if (lidar_class->from_straight() > 0.4) return states::corridorFollowing;
+
+            if (lidar_class->from_straight() > 0.8) return states::corridorFollowing;
 
             freeCorridor scan = lidar_class->intersection_scan();
             if (lidar_class->from_straight() < 0.21)
@@ -161,7 +166,13 @@ namespace nodes{
         }
 
         if (currentState == states::resetCoordinates) {
-            if (lidar_class->is_new_cell()) return states::moveToCenterCoordinates; // Potentionally dangerous
+            if (lidar_class->is_new_cell())
+            {
+                reset_coordinates();
+                return states::moveToCenterCoordinates;
+            }
+            if (coordinates.x > 0.3) return states::corridorFollowing;
+
             return states::resetCoordinates;
         }
 
@@ -169,7 +180,7 @@ namespace nodes{
         {
             freeCorridor scan = lidar_class->intersection_scan();
             if (lidar_class->from_straight() < 0.35) return states::moveToTarget;
-            if (coordinates.x > 0.2)
+            if (coordinates.x > 0.17)
             {
                 if (scan.left == false && scan.right == false && scan.front == true) return states::corridorFollowing;
                 return getSpin;
@@ -222,7 +233,7 @@ namespace nodes{
 
         if (currentState == states::littleGo)
         {
-            if (coordinates.x > 0.05) return states::corridorFollowing;
+            if (coordinates.x > 0.1) return states::corridorFollowing;
             return states::littleGo;
         }
 
@@ -258,6 +269,7 @@ namespace nodes{
 
     void MazeNode::state_moveto_target()
     {
+        std::cout << "to target: " << lidar_class->from_straight() << std::endl;
         robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
         robot_speed.v = pid_moveToTargetAhead.step( lidar_class->from_straight()-0.18, 0.01);
     }
@@ -270,7 +282,7 @@ namespace nodes{
 
     void MazeNode::state_moveto_center()
     {
-        robot_speed.v = pid_moveToTargetAhead.step( 0.23 - coordinates.x, 0.01);
+        robot_speed.v = pid_moveToTargetAhead.step( 0.2 - coordinates.x, 0.01);
         robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
     }
 
@@ -301,7 +313,7 @@ namespace nodes{
     void MazeNode::state_littleGo()
     {
         robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
-        robot_speed.v = pid_moveToTargetAhead.step( 0.1 - coordinates.x, 0.01);
+        robot_speed.v = pid_moveToTargetAhead.step( 0.14 - coordinates.x, 0.01);
     }
 
 
