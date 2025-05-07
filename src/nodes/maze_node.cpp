@@ -268,7 +268,7 @@ namespace nodes{
             //std::cout << "Centruju" << std::endl;
         }
 
-        robot_speed.v = 0.1;
+        robot_speed.v = 0.25;
 
         if (0.01 > abs(lidar_class->get_error_angle(line_toFollow)))
             imu_class->planar_integrator_.reset();
@@ -283,7 +283,7 @@ namespace nodes{
 
     void MazeNode::state_reset_coordinates()
     {
-        robot_speed.v = 0.1;
+        robot_speed.v = 0.25;
         robot_speed.w = pid_imu.step(imu_class->planar_integrator_.getYaw(), 0.01);
     }
 
