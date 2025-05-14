@@ -8,35 +8,37 @@
 \usepackage{xcolor}
 \usepackage{biblatex}
 \addbibresource{refs.bib}
+\usepackage{subcaption}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
     
 \begin{document}
 
-\title{BPC-PRP Project Doc Template}
+\title{BPC-PRP Project Documentation}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\author{\IEEEauthorblockN{Martin Kříž}
+\IEEEauthorblockA{\textit{Department of Control and Instrumentation} \\
+\textit{Brno University of Technology} \\
+Brno, Czech Republic \\
+246877@vut.cz}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\IEEEauthorblockN{Filip Šlíma}
+\IEEEauthorblockA{\textit{Department of Control and Instrumentation} \\
+\textit{Brno University of Technology} \\
+Brno, Czech Republic \\
+247477@vut.cz}
 }
+
 
 \maketitle
 
 \begin{abstract}
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi scelerisque luctus velit. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? Vivamus luctus egestas leo. Nulla non arcu lacinia neque faucibus fringilla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Mauris dolor felis, sagittis at, luctus sed, aliquam non, tellus. Mauris metus. Aliquam erat volutpat. Nullam eget nisl. Fusce wisi. Vestibulum fermentum tortor id mi.
+This work presents a set of control algorithms for the Fenrir mobile robot, designed to autonomously navigate and escape from a maze. The robot uses LiDAR, an IMU, wheel encoders, and a camera to perceive its environment. Navigation is managed by a finite state machine, featuring real-time line fitting for corridor detection, intersection classification, and IMU-based orientation correction and turning.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Robotics, project, BPC-PRP, state-of-the-art
+Autonomous robot, maze navigation, corridor following, ROS 2, LiDAR, IMU, ArUco tags
 \end{IEEEkeywords}
 
 
@@ -44,10 +46,8 @@ Robotics, project, BPC-PRP, state-of-the-art
 \input{texts/2_method.tex}
 \input{texts/3_conclusion.tex}
 
-
-\section*{Acknowledgment}
-Vestibulum erat nulla, ullamcorper nec, rutrum non, nonummy ac, erat. Aliquam erat volutpat. Etiam sapien elit, consequat eget, tristique non, venenatis quis, ante. Maecenas sollicitudin.
-
 \printbibliography
+
+\input{texts/supp_mat}
 
 \end{document}

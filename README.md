@@ -1,3 +1,6 @@
 # README
-add description of your project
-Filip smrdi
+BPC-PRP project
+
+## Authors
+Martin Kříž
+Filip Šlíma
